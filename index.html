@@ -5,23 +5,23 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     </head>
 
     <body>
-        <div id="qr-reader"></div>
+        <div id="qr-reader" width="600px"></div>
         <script>
             const html5QrCodeScan = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
             
             function onScanSuccess(decodedText, decodedResult) {
-
+                html5QrcodeScanner.clear();
             }
 
             function onScanFailure(error) {
 
             }
-            
-            html5QrCodeScan.render(onScanSuccess, onScanFailure)
+
+            html5QrCodeScan.render(onScanSuccess, onScanFailure);
         </script>
     </body>
 
