@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DP World - Guard Tour Patrol QR Scanner</title>
+
+  <!-- Official HTML5 QR Code Engine Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --dp-navy: #0e1626;
+      --dp-dark-surface: #142036;
+      --dp-card-bg: #ffffff;
+      --dp-mint: #00d68f;
+      --dp-coral: #ff3b69;
+      --dp-purple: #7c3aed;
+      --dp-silver: #64748b;
+      --dp-light-silver: #f1f5f9;
+      --dp-border: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #eef2f6;
+      color: var(--text-main);
+      padding: 14px;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(14, 22, 38, 0.08);
+      padding: 20px;
+      border-top: 5px solid var(--dp-navy);
+    }
+
+    /* HEADER */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--dp-light-silver);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo-img {
+      height: 44px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .header-divider {
+      height: 38px;
+      width: 2px;
+      background: var(--dp-border);
+    }
+
+    .brand-title h1 {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--dp-navy);
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+    }
+
+    .brand-title p {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dp-coral);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 3px;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    /* CONTROLS TOOLBAR */
+    .patrol-toolbar {
+      background: var(--dp-light-silver);
+      border: 1px solid var(--dp-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .toolbar-inputs {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--dp-navy);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .select-control {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1.5px solid var(--dp-border);
+      background: #ffffff;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--dp-navy);
+      outline: none;
+      cursor: pointer;
+      min-width: 190px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .select-control:focus {
+      border-color: var(--dp-mint);
+      box-shadow: 0 0 0 2px rgba(0, 214, 143, 0.2);
+    }
+
+    .btn-new-patrol {
+      background: #fff1f2;
+      color: var(--dp-coral);
+      border: 1.5px solid #ffe4e6;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      align-self: flex-end;
+    }
+
+    .btn-new-patrol:hover {
+      background: var(--dp-coral);
+      color: #ffffff;
+      border-color: var(--dp-coral);
+    }
+
+    /* KPI METRICS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid var(--dp-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+    }
+
+    .kpi-mint::before { background: var(--dp-mint); }
+    .kpi-navy::before { background: var(--dp-navy); }
+    .kpi-coral::before { background: var(--dp-coral); }
+    .kpi-purple::before { background: var(--dp-purple); }
+
+    .kpi-title {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .kpi-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--dp-navy);
+      line-height: 1.1;
+    }
+
+    .kpi-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* PROGRESS BAR */
+    .progress-bar-container {
+      width: 100%;
+      height: 7px;
+      background: var(--dp-light-silver);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--dp-mint);
+      transition: width 0.3s ease;
+    }
+
+    /* CHECKPOINT RECORDS TABLE */
+    .section-card {
+      border: 1px solid var(--dp-border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .section-header {
+      background: #fafbfc;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--dp-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid var(--dp-mint);
+    }
+
+    .section-header h3 {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--dp-navy);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th {
+      background: var(--dp-light-silver);
+      color: var(--dp-navy);
+      font-weight: 700;
+      font-size: 10.5px;
+      text-align: left;
+      padding: 7px 10px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--dp-border);
+    }
+
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--dp-border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr.row-verified {
+      background: rgba(0, 214, 143, 0.05);
+    }
+
+    tr.row-mismatch {
+      background: rgba(255, 59, 105, 0.05);
+    }
+
+    .point-seq {
+      font-weight: 800;
+      color: var(--dp-navy);
+      display: inline-block;
+      width: 22px;
+      text-align: center;
+    }
+
+    .point-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .point-name {
+      font-weight: 700;
+      color: var(--dp-navy);
+      font-size: 12.5px;
+    }
+
+    .point-code {
+      font-size: 10px;
+      font-family: monospace;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* SCAN BUTTON STATES */
+    .btn-scan {
+      background: var(--dp-navy);
+      color: #ffffff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-scan:hover:not(:disabled) {
+      background: #1e293b;
+      transform: translateY(-1px);
+    }
+
+    /* DISABLED ON SUCCESS */
+    .btn-scan:disabled {
+      background: #cbd5e1;
+      color: #64748b;
+      cursor: not-allowed;
+      border: 1px solid #cbd5e1;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* RETRY BUTTON ON MISMATCH */
+    .btn-scan.btn-scan-retry {
+      background: #ea580c;
+      color: #ffffff;
+    }
+
+    .btn-scan.btn-scan-retry:hover {
+      background: #c2410c;
+    }
+
+    /* POINT COMPARE BADGES */
+    .compare-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .status-verified {
+      background: rgba(0, 214, 143, 0.16);
+      color: #00875a;
+      border: 1px solid rgba(0, 214, 143, 0.3);
+    }
+
+    .status-mismatch {
+      background: rgba(255, 59, 105, 0.15);
+      color: var(--dp-coral);
+      border: 1px solid rgba(255, 59, 105, 0.3);
+    }
+
+    /* SCANNER MODAL POPUP */
+    .scanner-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(14, 22, 38, 0.88);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .scanner-box {
+      background: #ffffff;
+      width: 100%;
+      max-width: 440px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      border-top: 5px solid var(--dp-navy);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scanner-header {
+      padding: 12px 16px;
+      background: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--dp-border);
+    }
+
+    .scanner-header h4 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--dp-navy);
+    }
+
+    .btn-close-scanner {
+      background: transparent;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+      padding: 0 4px;
+    }
+
+    .scanner-target-banner {
+      background: var(--dp-light-silver);
+      padding: 8px 16px;
+      font-size: 11.5px;
+      color: var(--dp-navy);
+      border-bottom: 1px solid var(--dp-border);
+    }
+
+    .scanner-viewport {
+      width: 100%;
+      min-height: 280px;
+      background: #000000;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #qr-reader {
+      width: 100%;
+      background: transparent;
+      border: none !important;
+    }
+
+    #qr-reader__scan_region video {
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .camera-error-banner {
+      display: none;
+      padding: 16px;
+      background: #fff1f2;
+      color: var(--dp-coral);
+      font-size: 12px;
+      text-align: center;
+      border-top: 1px solid #ffe4e6;
+      line-height: 1.4;
+    }
+
+    /* FOOTER */
+    .footer-bar {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px dashed var(--dp-border);
+      padding-top: 10px;
+    }
+
+    @media (max-width: 650px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .patrol-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .toolbar-inputs {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .select-control {
+        min-width: 100%;
+      }
+      .btn-new-patrol {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- HEADER WITH DP WORLD LOGO -->
+    <div class="header-bar">
+      <div class="brand-section">
+        <a href="https://commons.wikimedia.org/wiki/File:DP_World_2021_logo.svg" target="_blank" title="DP World Logo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg" alt="DP World Logo" class="brand-logo-img" />
+        </a>
+        <div class="header-divider"></div>
+        <div class="brand-title">
+          <h1>GUARD TOUR PATROL SYSTEM</h1>
+          <p>Live QR Verification & Point Compare</p>
+        </div>
+      </div>
+
+      <div class="header-badge" id="patrolStatusBadge">
+        🛡️ <span id="patrolStatusText">Patrol Standby</span>
+      </div>
+    </div>
+
+    <!-- WORKFLOW TOOLBAR -->
+    <div class="patrol-toolbar">
+      <div class="toolbar-inputs">
+        <div class="form-group">
+          <label for="officerSelect">Patrol Officer</label>
+          <select id="officerSelect" class="select-control" onchange="onOfficerChange()">
+            <option value="" disabled selected>-- Select Officer --</option>
+            <option value="Abdulrahman Al-Tuhami">Abdulrahman Al-Tuhami</option>
+            <option value="Hazem Abdulkareem">Hazem Abdulkareem</option>
+            <option value="Moataz Sabri">Moataz Sabri</option>
+            <option value="Mohamed Ibrahim">Mohamed Ibrahim</option>
+            <option value="Mahmoud Magdy">Mahmoud Magdy</option>
+            <option value="Ahmed Twancy">Ahmed Twancy</option>
+            <option value="Youssef Altayeb">Youssef Altayeb</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="directionSelect">Patrol Direction (Route)</label>
+          <select id="directionSelect" class="select-control" onchange="onDirectionChange()">
+            <option value="north_perimeter">North Perimeter & Empty Yard Route</option>
+            <option value="warehouse_complex">Warehouse Complex Route (WH-A to WH-C)</option>
+            <option value="full_perimeter">Full Facility Perimeter & Sub-Stations</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-new-patrol" onclick="onNewPatrolClick()">
+        🔄 New Patrol (Reset)
+      </button>
+    </div>
+
+    <!-- KPI METRICS -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-navy">
+        <div class="kpi-title">Total Checkpoints</div>
+        <div class="kpi-val" id="kpiTotal">0</div>
+        <div class="kpi-sub">On active route</div>
+      </div>
+      <div class="kpi-card kpi-mint">
+        <div class="kpi-title">Verified Points</div>
+        <div class="kpi-val" id="kpiVerified">0</div>
+        <div class="kpi-sub" id="kpiPercent">0% Completed</div>
+      </div>
+      <div class="kpi-card kpi-coral">
+        <div class="kpi-title">Point Mismatches</div>
+        <div class="kpi-val" id="kpiMismatch">0</div>
+        <div class="kpi-sub">Incorrect QR tags</div>
+      </div>
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-title">Remaining</div>
+        <div class="kpi-val" id="kpiRemaining">0</div>
+        <div class="kpi-sub">Awaiting scan</div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+
+    <!-- CHECKPOINT RECORDS TABLE -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3 id="tableTitle">Checkpoints</h3>
+        <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="currentOfficerDisplay">No Officer Assigned</span>
+      </div>
+
+      <table id="checkpointsTable">
+        <thead>
+          <tr>
+            <th style="width: 35px; text-align: center;">#</th>
+            <th>Expected Checkpoint Position</th>
+            <th style="width: 140px; text-align: center;">Action</th>
+            <th style="width: 260px;">Point Compare Result</th>
+          </tr>
+        </thead>
+        <tbody id="checkpointsBody">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-bar">
+      <div>DP World Logistics Park &bull; Security Operations Division</div>
+      <div>Direct Video Frame QR Inspection</div>
+    </div>
+
+  </div>
+
+  <!-- GENUINE LIVE CAMERA MODAL -->
+  <div class="scanner-modal" id="scannerModal">
+    <div class="scanner-box">
+      <div class="scanner-header">
+        <h4 id="modalPointTitle">Scan Checkpoint QR Code</h4>
+        <button class="btn-close-scanner" onclick="closeScannerModal()">&times;</button>
+      </div>
+
+      <div class="scanner-target-banner" id="modalTargetBanner">
+        Target Position: <strong>Loading...</strong>
+      </div>
+
+      <!-- HARDWARE CAMERA FEED VIEWPORT -->
+      <div class="scanner-viewport">
+        <div id="qr-reader"></div>
+      </div>
+
+      <!-- CAMERA HARDWARE/PERMISSION ERROR BANNER -->
+      <div class="camera-error-banner" id="cameraErrorBanner">
+        ⚠️ <strong>Camera Error:</strong><br>
+        <span id="cameraErrorText">Unable to access device camera. Please allow camera permissions in your browser. (Note: Browsers require HTTPS or localhost to enable video cameras).</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIO/HAPTIC CONFIRMATION ENGINE -->
+  <script>
+    function triggerFeedback(isMatch) {
+      // 1. Audio tone feedback
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (isMatch) {
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch (A5)
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.15);
+        } else {
+          osc.frequency.setValueAtTime(260, audioCtx.currentTime); // Low warning buzz
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.3);
+        }
+      } catch (e) {}
+
+      // 2. Mobile vibration feedback
+      if (navigator.vibrate) {
+        if (isMatch) {
+          navigator.vibrate(100);
+        } else {
+          navigator.vibrate([100, 80, 100]);
+        }
+      }
+    }
+  </script>
+
+  <!-- BUSINESS LOGIC & CAMERA ENGINE -->
+  <script>
+    // PREDEFINED PATROL ROUTES & CHECKPOINT LOCATIONS
+    const PATROL_ROUTES = {
+      north_perimeter: {
+        name: "North Perimeter & Empty Yard Route",
+        points: [
+          { id: "CP-MG-01", name: "Main Entry Gate (Post 1)", qr: "DPW-LP-POINT-MG01", desc: "Access control gate & barrier terminal" },
+          { id: "CP-EY-02", name: "Empty Yard (Stack A-North)", qr: "DPW-LP-POINT-EY02", desc: "Reefer container power rack area" },
+          { id: "CP-EY-03", name: "Empty Yard (North Gate Post)", qr: "DPW-LP-POINT-EY03", desc: "North perimeter turnstile gate" },
+          { id: "CP-SS-01", name: "Electrical Sub-Station 01", qr: "DPW-LP-POINT-SS01", desc: "High-voltage switchgear lock inspection" },
+          { id: "CP-PF-04", name: "Perimeter Fence Watchpost 04", qr: "DPW-LP-POINT-PF04", desc: "North-West security lighting tower" }
+        ]
+      },
+      warehouse_complex: {
+        name: "Warehouse Complex Route (WH-A to WH-C)",
+        points: [
+          { id: "CP-WHA-01", name: "Warehouse A (Main Loading Bay)", qr: "DPW-LP-POINT-WHA01", desc: "Hydraulic loading docks 01 to 06" },
+          { id: "CP-WHA-02", name: "Warehouse A (Emergency Fire Exit)", qr: "DPW-LP-POINT-WHA02", desc: "Push-bar emergency egress doors" },
+          { id: "CP-WHB-01", name: "Warehouse B (Cross-Dock Entrance)", qr: "DPW-LP-POINT-WHB01", desc: "Cargo staging and receiving terminal" },
+          { id: "CP-WHC-01", name: "Warehouse C (Customs Bonded Area)", qr: "DPW-LP-POINT-WHC01", desc: "Customs bonded security padlock point" },
+          { id: "CP-ADM-01", name: "Logistics Admin Building Egress", qr: "DPW-LP-POINT-ADM01", desc: "Night entry locks & security key vault" }
+        ]
+      },
+      full_perimeter: {
+        name: "Full Facility Perimeter & Sub-Stations",
+        points: [
+          { id: "CP-MG-01", name: "Main Entry Security Gate", qr: "DPW-LP-POINT-MG01", desc: "Main entry control terminal" },
+          { id: "CP-EY-02", name: "Empty Container Yard Guard Point", qr: "DPW-LP-POINT-EY02", desc: "Yard lighting and container integrity" },
+          { id: "CP-SS-01", name: "Sub-Station 01 Perimeter", qr: "DPW-LP-POINT-SS01", desc: "Power relay perimeter barrier" },
+          { id: "CP-SS-02", name: "Sub-Station 02 (South Side)", qr: "DPW-LP-POINT-SS02", desc: "Backup generator diesel fuel bay" },
+          { id: "CP-HY-01", name: "Hay Yard Perimeter Fence", qr: "DPW-LP-POINT-HY01", desc: "South-East agricultural storage fence" },
+          { id: "CP-WHA-01", name: "Warehouse A Main Gate", qr: "DPW-LP-POINT-WHA01", desc: "Final tour review checkpoint" }
+        ]
+      }
+    };
+
+    let currentRouteKey = "north_perimeter";
+    let activeOfficer = "";
+    let checkpointStatuses = {}; 
+
+    let html5QrCode = null;
+    let currentScanningPointIndex = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadSavedPatrolState();
+      renderCheckpointsTable();
+    });
+
+    function onOfficerChange() {
+      const select = document.getElementById("officerSelect");
+      activeOfficer = select.value;
+      document.getElementById("currentOfficerDisplay").innerText = activeOfficer ? `Officer: ${activeOfficer}` : "No Officer Assigned";
+      updatePatrolHeaderStatus();
+      savePatrolState();
+    }
+
+    function onDirectionChange() {
+      const select = document.getElementById("directionSelect");
+      currentRouteKey = select.value;
+      checkpointStatuses = {}; // Fresh sequence for new route
+      renderCheckpointsTable();
+      savePatrolState();
+    }
+
+    function onNewPatrolClick() {
+      if (confirm("Start a New Patrol tour? All scanned checkpoints will be reset to pending.")) {
+        checkpointStatuses = {};
+        renderCheckpointsTable();
+        savePatrolState();
+      }
+    }
+
+    // RENDER TABLE WITH SCAN BUTTON STATES & POINT COMPARE
+    function renderCheckpointsTable() {
+      const route = PATROL_ROUTES[currentRouteKey];
+      document.getElementById("tableTitle").innerText = `Checkpoints: ${route.name}`;
+
+      const tbody = document.getElementById("checkpointsBody");
+      tbody.innerHTML = "";
+
+      let verifiedCount = 0;
+      let mismatchCount = 0;
+
+      route.points.forEach((point, index) => {
+        const state = checkpointStatuses[point.id] || { status: "pending", scannedValue: "", timestamp: "" };
+
+        if (state.status === "verified") verifiedCount++;
+        if (state.status === "mismatch") mismatchCount++;
+
+        const tr = document.createElement("tr");
+        if (state.status === "verified") tr.className = "row-verified";
+        if (state.status === "mismatch") tr.className = "row-mismatch";
+
+        // 1. Index
+        const tdSeq = document.createElement("td");
+        tdSeq.style.textAlign = "center";
+        tdSeq.innerHTML = `<span class="point-seq">${index + 1}</span>`;
+
+        // 2. Expected Point Position & Details
+        const tdInfo = document.createElement("td");
+        tdInfo.innerHTML = `
+          <div class="point-info">
+            <span class="point-name">${point.name}</span>
+            <span class="point-code">ID: ${point.id} &bull; Expected QR: <code>${point.qr}</code></span>
+            <span style="font-size:10px; color:var(--text-muted);">${point.desc}</span>
+          </div>
+        `;
+
+        // 3. Action Button (Disabled once correctly scanned)
+        const tdAction = document.createElement("td");
+        tdAction.style.textAlign = "center";
+
+        if (state.status === "verified") {
+          // DISABLED WHEN SCAN IS DONE CORRECTLY
+          tdAction.innerHTML = `
+            <button class="btn-scan" disabled title="Checkpoint verified and locked">
+              ✓ Verified
+            </button>
+          `;
+        } else if (state.status === "mismatch") {
+          // ALLOW RETRY IF GUARD SCANNED WRONG TAG
+          tdAction.innerHTML = `
+            <button class="btn-scan btn-scan-retry" onclick="openScannerModal(${index})" title="Wrong location scanned. Click to re-scan">
+              ⚠️ Re-Scan QR
+            </button>
+          `;
+        } else {
+          // READY TO SCAN
+          tdAction.innerHTML = `
+            <button class="btn-scan" onclick="openScannerModal(${index})">
+              📷 Scan QR
+            </button>
+          `;
+        }
+
+        // 4. Point Compare Result
+        const tdCompare = document.createElement("td");
+        if (state.status === "verified") {
+          tdCompare.innerHTML = `
+            <div>
+              <span class="compare-status status-verified">✅ Matched & Verified</span>
+              <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">
+                Scanned: <strong>${state.scannedValue}</strong><br>
+                Time: <strong>${state.timestamp}</strong> &bull; By: <strong>${state.officer || "Officer"}</strong>
+              </div>
+            </div>
+          `;
+        } else if (state.status === "mismatch") {
+          tdCompare.innerHTML = `
+            <div>
+              <span class="compare-status status-mismatch">❌ Position Mismatch</span>
+              <div style="font-size: 10px; color: var(--dp-coral); margin-top: 3px;">
+                Expected: <strong>${point.qr}</strong><br>
+                Scanned: <strong>${state.scannedValue}</strong> (${state.timestamp})
+              </div>
+            </div>
+          `;
+        } else {
+          tdCompare.innerHTML = `
+            <span class="compare-status status-pending">⏳ Awaiting Scan</span>
+          `;
+        }
+
+        tr.appendChild(tdSeq);
+        tr.appendChild(tdInfo);
+        tr.appendChild(tdAction);
+        tr.appendChild(tdCompare);
+        tbody.appendChild(tr);
+      });
+
+      // Update KPI Statistics
+      const total = route.points.length;
+      const remaining = total - verifiedCount;
+      const percent = total > 0 ? Math.round((verifiedCount / total) * 100) : 0;
+
+      document.getElementById("kpiTotal").innerText = total;
+      document.getElementById("kpiVerified").innerText = verifiedCount;
+      document.getElementById("kpiMismatch").innerText = mismatchCount;
+      document.getElementById("kpiRemaining").innerText = remaining;
+      document.getElementById("kpiPercent").innerText = `${percent}% Completed`;
+      document.getElementById("progressBar").style.width = `${percent}%`;
+
+      updatePatrolHeaderStatus();
+    }
+
+    function updatePatrolHeaderStatus() {
+      const route = PATROL_ROUTES[currentRouteKey];
+      const total = route.points.length;
+      let verifiedCount = 0;
+      route.points.forEach(p => {
+        if (checkpointStatuses[p.id] && checkpointStatuses[p.id].status === "verified") {
+          verifiedCount++;
+        }
+      });
+
+      const badge = document.getElementById("patrolStatusBadge");
+      const text = document.getElementById("patrolStatusText");
+
+      if (verifiedCount === total && total > 0) {
+        badge.style.background = "#ecfdf5";
+        badge.style.color = "#065f46";
+        badge.style.borderColor = "#a7f3d0";
+        text.innerText = "Tour Completed";
+      } else if (verifiedCount > 0) {
+        badge.style.background = "#eff6ff";
+        badge.style.color = "#1e40af";
+        badge.style.borderColor = "#bfdbfe";
+        text.innerText = `Tour in Progress (${verifiedCount}/${total})`;
+      } else {
+        badge.style.background = "#f1f5f9";
+        badge.style.color = "#475569";
+        badge.style.borderColor = "#cbd5e1";
+        text.innerText = activeOfficer ? `Patrol Ready: ${activeOfficer}` : "Patrol Standby";
+      }
+    }
+
+    // ==========================================
+    // REAL HARDWARE CAMERA QR SCANNER
+    // ==========================================
+    function openScannerModal(pointIndex) {
+      if (!activeOfficer) {
+        alert("Please select the Patrol Officer from the top menu before scanning checkpoints.");
+        document.getElementById("officerSelect").focus();
+        return;
+      }
+
+      currentScanningPointIndex = pointIndex;
+      const point = PATROL_ROUTES[currentRouteKey].points[pointIndex];
+
+      document.getElementById("modalPointTitle").innerText = `Scanning Checkpoint #${pointIndex + 1}`;
+      document.getElementById("modalTargetBanner").innerHTML = `
+        Target Position: <strong>${point.name}</strong><br>
+        Expected QR Tag: <code>${point.qr}</code>
+      `;
+      document.getElementById("cameraErrorBanner").style.display = "none";
+      document.getElementById("scannerModal").style.display = "flex";
+
+      // Launch actual camera
+      startLiveCamera();
+    }
+
+    function closeScannerModal() {
+      stopLiveCamera().then(() => {
+        document.getElementById("scannerModal").style.display = "none";
+      });
+    }
+
+    function startLiveCamera() {
+      const readerEl = document.getElementById("qr-reader");
+      readerEl.innerHTML = "";
+
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("qr-reader");
+      }
+
+      const config = {
+        fps: 15,
+        qrbox: { width: 230, height: 230 },
+        aspectRatio: 1.0
+      };
+
+      // 1. Try back/environment camera first (mobile standard)
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onCodeScanned
+      ).catch(err1 => {
+        console.warn("Rear camera start failed, attempting default user camera:", err1);
+        // 2. Fallback to any default camera available (laptops/webcams)
+        html5QrCode.start(
+          { facingMode: "user" },
+          config,
+          onCodeScanned
+        ).catch(err2 => {
+          console.error("Camera access failed completely:", err2);
+          document.getElementById("cameraErrorBanner").style.display = "block";
+        });
+      });
+    }
+
+    function stopLiveCamera() {
+      if (html5QrCode && html5QrCode.isScanning) {
+        return html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+        }).catch(err => {
+          console.error("Error shutting down camera:", err);
+        });
+      }
+      return Promise.resolve();
+    }
+
+    // ON SUCCESSFUL LIVE CAMERA READ
+    function onCodeScanned(decodedText) {
+      handlePointComparison(decodedText);
+    }
+
+    // POINT COMPARE VALIDATION
+    function handlePointComparison(scannedText) {
+      const route = PATROL_ROUTES[currentRouteKey];
+      const expectedPoint = route.points[currentScanningPointIndex];
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      // Compare scanned QR code with expected point value
+      const isMatched = (scannedText.trim() === expectedPoint.qr.trim());
+
+      checkpointStatuses[expectedPoint.id] = {
+        status: isMatched ? "verified" : "mismatch",
+        scannedValue: scannedText,
+        timestamp: timeStr,
+        officer: activeOfficer
+      };
+
+      // Trigger tone & vibration feedback
+      triggerFeedback(isMatched);
+
+      // Stop camera and shut down modal
+      stopLiveCamera().then(() => {
+        document.getElementById("scannerModal").style.display = "none";
+        renderCheckpointsTable();
+        savePatrolState();
+      });
+    }
+
+    // LOCAL STORAGE PERSISTENCE
+    function savePatrolState() {
+      try {
+        const payload = {
+          officer: activeOfficer,
+          routeKey: currentRouteKey,
+          statuses: checkpointStatuses
+        };
+        localStorage.setItem("dpw_guard_patrol_state", JSON.stringify(payload));
+      } catch (e) {}
+    }
+
+    function loadSavedPatrolState() {
+      try {
+        const saved = localStorage.getItem("dpw_guard_patrol_state");
+        if (saved) {
+          const data = JSON.parse(saved);
+          if (data.officer) {
+            activeOfficer = data.officer;
+            document.getElementById("officerSelect").value = activeOfficer;
+            document.getElementById("currentOfficerDisplay").innerText = `Officer: ${activeOfficer}`;
+          }
+          if (data.routeKey && PATROL_ROUTES[data.routeKey]) {
+            currentRouteKey = data.routeKey;
+            document.getElementById("directionSelect").value = currentRouteKey;
+          }
+          if (data.statuses) {
+            checkpointStatuses = data.statuses;
+          }
+        }
+      } catch (e) {}
+    }
+  </script>
+
+</body>
+
+</html>
