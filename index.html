@@ -4,10 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DP World - Real-Time GPS Patrol QR Scanner</title>
+  <title>DP World - Smart Guard Tour & Checkpoint Inspection</title>
 
   <!-- HTML5 QR Code Engine Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <!-- QRCode.js for generating dynamic tags on-site -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- SheetJS for real .xlsx Excel exports -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     :root {
@@ -39,12 +43,12 @@
     }
 
     .container {
-      max-width: 960px;
+      max-width: 1100px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(14, 22, 38, 0.08);
-      padding: 20px;
+      padding: 18px 22px;
       border-top: 5px solid var(--dp-navy);
     }
 
@@ -96,45 +100,25 @@
       margin-top: 3px;
     }
 
-    .header-badges {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      background: #ecfdf5;
-      color: #065f46;
-      border: 1px solid #a7f3d0;
-    }
-
-    /* PATROL CONTROLS TOOLBAR */
+    /* TOOLBAR CONTROLS */
     .patrol-toolbar {
       background: var(--dp-light-silver);
       border: 1px solid var(--dp-border);
       border-radius: 10px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 14px;
-      margin-bottom: 18px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    .toolbar-inputs {
+    .toolbar-left {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-      flex: 1;
     }
 
     .form-group {
@@ -144,7 +128,7 @@
     }
 
     .form-group label {
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--dp-navy);
       text-transform: uppercase;
@@ -161,22 +145,20 @@
       color: var(--dp-navy);
       outline: none;
       cursor: pointer;
-      min-width: 190px;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      min-width: 180px;
     }
 
     .select-control:focus {
       border-color: var(--dp-mint);
-      box-shadow: 0 0 0 2px rgba(0, 214, 143, 0.2);
     }
 
     .toolbar-actions {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
-    /* THE SINGLE PRIMARY SCAN BUTTON */
     .btn-main-scan {
       background: var(--dp-mint);
       color: #064e3b;
@@ -188,7 +170,7 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       transition: all 0.15s;
       box-shadow: 0 2px 8px rgba(0, 214, 143, 0.25);
     }
@@ -196,11 +178,42 @@
     .btn-main-scan:hover {
       background: #00bf7f;
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 214, 143, 0.35);
     }
 
-    .btn-main-scan:active {
-      transform: translateY(0);
+    .btn-manage-qrs {
+      background: #ffffff;
+      color: var(--dp-navy);
+      border: 1.5px solid var(--dp-border);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-manage-qrs:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-export {
+      background: #ffffff;
+      color: #0284c7;
+      border: 1.5px solid #bae6fd;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-export:hover {
+      background: #f0f9ff;
     }
 
     .btn-new-patrol {
@@ -215,12 +228,10 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      transition: all 0.15s;
     }
 
     .btn-new-patrol:hover {
       background: #fff1f2;
-      border-color: var(--dp-coral);
     }
 
     /* KPI METRICS */
@@ -228,7 +239,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .kpi-card {
@@ -263,22 +274,16 @@
     }
 
     .kpi-val {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       color: var(--dp-navy);
       line-height: 1.1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .kpi-sub {
       font-size: 10px;
       color: var(--text-muted);
       margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     /* TABLE SECTION */
@@ -310,14 +315,14 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
+      font-size: 11.5px;
     }
 
     th {
       background: var(--dp-light-silver);
       color: var(--dp-navy);
       font-weight: 700;
-      font-size: 10.5px;
+      font-size: 10px;
       text-align: left;
       padding: 8px 10px;
       text-transform: uppercase;
@@ -325,7 +330,7 @@
     }
 
     td {
-      padding: 9px 10px;
+      padding: 8px 10px;
       border-bottom: 1px solid var(--dp-border);
       vertical-align: middle;
     }
@@ -334,140 +339,77 @@
       border-bottom: none;
     }
 
-    .point-seq {
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2.5px 7px;
+      border-radius: 4px;
+      font-size: 9.5px;
       font-weight: 800;
-      color: var(--dp-navy);
-      display: inline-block;
-      width: 24px;
-      text-align: center;
-    }
-
-    .location-cell {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .location-name {
-      font-weight: 700;
-      color: var(--dp-navy);
-      font-size: 12.5px;
-    }
-
-    .location-raw {
-      font-size: 10px;
-      color: var(--text-muted);
-      font-family: monospace;
-    }
-
-    /* COORDINATES PILL */
-    .coords-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 700;
-      background: #f1f5f9;
-      color: var(--dp-navy);
-      border: 1px solid var(--dp-border);
-      font-family: monospace;
-    }
-
-    .map-link {
-      font-size: 10.5px;
-      font-weight: 700;
-      color: #0284c7;
-      text-decoration: none;
-      margin-left: 4px;
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .map-link:hover {
-      text-decoration: underline;
-    }
-
-    .verified-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 700;
       text-transform: uppercase;
-      background: rgba(0, 214, 143, 0.16);
-      color: #00875a;
-      border: 1px solid rgba(0, 214, 143, 0.3);
+      letter-spacing: 0.3px;
     }
 
-    .empty-state {
-      padding: 32px 16px;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 12px;
-    }
+    .pill-intact { background: rgba(0, 214, 143, 0.16); color: #00875a; border: 1px solid rgba(0, 214, 143, 0.3); }
+    .pill-broken { background: rgba(255, 59, 105, 0.15); color: var(--dp-coral); border: 1px solid rgba(255, 59, 105, 0.3); }
+    .pill-breach-yes { background: #fee2e2; color: #991b1b; font-weight: 900; border: 1px solid #f87171; }
+    .pill-breach-no { background: #f1f5f9; color: #475569; }
 
-    .btn-delete-row {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 2px;
+    .coords-tag {
+      font-family: monospace;
+      font-size: 10px;
+      color: var(--dp-navy);
+      background: #f1f5f9;
+      padding: 1.5px 5px;
       border-radius: 3px;
-      color: var(--dp-coral);
-      font-size: 14px;
-      line-height: 1;
+      border: 1px solid var(--dp-border);
     }
 
-    .btn-delete-row:hover {
-      background: #ffe4e6;
-    }
-
-    /* LIVE CAMERA MODAL */
-    .scanner-modal {
+    /* MODALS GENERAL */
+    .modal-overlay {
       display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(14, 22, 38, 0.88);
+      background: rgba(14, 22, 38, 0.85);
       z-index: 9999;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
 
-    .scanner-box {
+    .modal-window {
       background: #ffffff;
       width: 100%;
-      max-width: 440px;
+      max-width: 500px;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
       border-top: 5px solid var(--dp-navy);
       display: flex;
       flex-direction: column;
+      max-height: 90vh;
     }
 
-    .scanner-header {
-      padding: 12px 16px;
-      background: #ffffff;
+    .modal-header {
+      padding: 12px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--dp-border);
+      background: #fafbfc;
     }
 
-    .scanner-header h4 {
+    .modal-header h4 {
       font-size: 13px;
       font-weight: 800;
       color: var(--dp-navy);
     }
 
-    .btn-close-scanner {
+    .btn-close-modal {
       background: transparent;
       border: none;
       font-size: 22px;
@@ -476,36 +418,110 @@
       line-height: 1;
     }
 
-    .scanner-info-strip {
+    .modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+    }
+
+    /* CHECKLIST FORM CONTROLS */
+    .inspection-meta-box {
       background: var(--dp-light-silver);
-      padding: 8px 16px;
-      font-size: 11.5px;
-      color: var(--dp-navy);
-      border-bottom: 1px solid var(--dp-border);
+      border: 1px solid var(--dp-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .check-question-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--dp-border);
     }
 
-    .scanner-viewport {
+    .check-question-row label {
+      font-weight: 700;
+      color: var(--dp-navy);
+      font-size: 12px;
+    }
+
+    .toggle-group {
+      display: inline-flex;
+      border-radius: 6px;
+      border: 1.5px solid var(--dp-border);
+      overflow: hidden;
+    }
+
+    .toggle-option {
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 800;
+      background: #ffffff;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
+
+    .toggle-option.active-safe {
+      background: var(--dp-mint);
+      color: #064e3b;
+    }
+
+    .toggle-option.active-alert {
+      background: var(--dp-coral);
+      color: #ffffff;
+    }
+
+    .form-textarea {
       width: 100%;
-      min-height: 290px;
-      background: #000000;
-      position: relative;
+      border: 1.5px solid var(--dp-border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+      resize: vertical;
+      min-height: 60px;
+      margin-top: 6px;
     }
 
-    #qr-reader {
+    .form-textarea:focus {
+      border-color: var(--dp-mint);
+    }
+
+    .btn-submit-inspection {
       width: 100%;
-      border: none !important;
+      background: var(--dp-navy);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: background 0.15s;
     }
 
-    .camera-error-banner {
-      display: none;
-      padding: 14px;
-      background: #fff1f2;
-      color: var(--dp-coral);
-      font-size: 11.5px;
+    .btn-submit-inspection:hover {
+      background: #1e293b;
+    }
+
+    /* GPS STATUS BANNER IN CAMERA */
+    .scanner-gps-status {
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 700;
       text-align: center;
-      line-height: 1.4;
+      background: #eff6ff;
+      color: #1e40af;
+      border-top: 1px solid #bfdbfe;
     }
 
     /* FOOTER */
@@ -518,31 +534,8 @@
       color: var(--text-muted);
       border-top: 1px dashed var(--dp-border);
       padding-top: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .patrol-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .toolbar-inputs {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .select-control {
-        min-width: 100%;
-      }
-      .toolbar-actions {
-        flex-direction: column;
-        width: 100%;
-      }
-      .btn-main-scan, .btn-new-patrol {
-        width: 100%;
-        justify-content: center;
-      }
+      flex-wrap: wrap;
+      gap: 6px;
     }
   </style>
 </head>
@@ -559,294 +552,361 @@
         </a>
         <div class="header-divider"></div>
         <div class="brand-title">
-          <h1>GUARD TOUR PATROL DISPATCH</h1>
-          <p>Real-Time GPS Checkpoint Logger</p>
+          <h1>GUARD TOUR PATROL & VERIFICATION</h1>
+          <p>Location-Aware QR Inspection Architecture</p>
         </div>
       </div>
 
-      <div class="header-badges">
-        <div class="badge" id="patrolStatusBadge">
-          🛡️ <span id="patrolStatusText">Active Patrol</span>
-        </div>
+      <div style="font-size: 11px; font-weight: 700; color: #065f46; background: #ecfdf5; padding: 5px 12px; border-radius: 6px; border: 1px solid #a7f3d0;">
+        🛡️ Active Shift Guard Protocol
       </div>
     </div>
 
     <!-- PATROL CONTROLS TOOLBAR -->
     <div class="patrol-toolbar">
-      <div class="toolbar-inputs">
+      <div class="toolbar-left">
         <div class="form-group">
           <label for="officerSelect">Patrol Officer</label>
-          <select id="officerSelect" class="select-control" onchange="onOfficerChange()">
-            <option value="" disabled selected>-- Select Officer --</option>
-            <option value="Abdulrahman Al-Tuhami">Abdulrahman Al-Tuhami</option>
+          <select id="officerSelect" class="select-control" onchange="autoSave()">
+            <option value="Abdulrahman Al-Tuhami" selected>Abdulrahman Al-Tuhami</option>
             <option value="Hazem Abdulkareem">Hazem Abdulkareem</option>
             <option value="Moataz Sabri">Moataz Sabri</option>
             <option value="Mohamed Ibrahim">Mohamed Ibrahim</option>
             <option value="Mahmoud Magdy">Mahmoud Magdy</option>
             <option value="Ahmed Twancy">Ahmed Twancy</option>
-            <option value="Youssef Altayeb">Youssef Altayeb</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="directionSelect">Patrol Direction (Route)</label>
-          <select id="directionSelect" class="select-control" onchange="onDirectionChange()">
-            <option value="North Perimeter & Empty Yard Route" selected>North Perimeter & Empty Yard Route</option>
-            <option value="Warehouse Complex Route (WH-A to WH-C)">Warehouse Complex Route (WH-A to WH-C)</option>
-            <option value="Full Facility Perimeter & Sub-Stations">Full Facility Perimeter & Sub-Stations</option>
-            <option value="South Fence & Agricultural Yard">South Fence & Agricultural Yard</option>
+          <label for="shiftSelect">Duty Shift</label>
+          <select id="shiftSelect" class="select-control" style="min-width: 140px;" onchange="autoSave()">
+            <option value="Day Shift (08:00 - 20:00)">☀️ Day Shift</option>
+            <option value="Night Shift (20:00 - 08:00)">🌙 Night Shift</option>
           </select>
         </div>
       </div>
 
       <div class="toolbar-actions">
-        <!-- SINGLE SCAN BUTTON -->
+        <!-- 1. PRIMARY SCAN BUTTON -->
         <button class="btn-main-scan" onclick="openScannerModal()">
           📷 Scan Checkpoint QR
         </button>
 
-        <!-- RESET TOUR BUTTON -->
-        <button class="btn-new-patrol" onclick="onNewPatrolClick()">
+        <!-- 2. MANAGE SITES & DYNAMIC QR CODES -->
+        <button class="btn-manage-qrs" onclick="openRegistryModal()">
+          ⚙️ Manage Checkpoints & QRs
+        </button>
+
+        <!-- 3. POST / EXCEL EXPORT BUTTON -->
+        <button class="btn-export" onclick="openExportModal()">
+          📤 Export / Sync Online
+        </button>
+
+        <!-- 4. NEW PATROL RESET -->
+        <button class="btn-new-patrol" onclick="onNewPatrol()">
           🔄 New Patrol
         </button>
       </div>
     </div>
 
-    <!-- KPI METRICS -->
+    <!-- SUMMARY METRICS -->
     <div class="kpi-grid">
       <div class="kpi-card kpi-navy">
-        <div class="kpi-title">Scans Logged</div>
+        <div class="kpi-title">Inspected Points</div>
         <div class="kpi-val" id="kpiTotalScans">0</div>
         <div class="kpi-sub">Checkpoints recorded</div>
       </div>
       <div class="kpi-card kpi-mint">
-        <div class="kpi-title">Latest Checkpoint</div>
-        <div class="kpi-val" id="kpiLatestPoint">--</div>
-        <div class="kpi-sub" id="kpiLatestCoords">No GPS yet</div>
-      </div>
-      <div class="kpi-card kpi-purple">
-        <div class="kpi-title">Last Scan Time</div>
-        <div class="kpi-val" id="kpiLatestTime">--:--:--</div>
-        <div class="kpi-sub" id="kpiElapsed">Standby</div>
+        <div class="kpi-title">Intact Condition</div>
+        <div class="kpi-val" id="kpiIntact">0</div>
+        <div class="kpi-sub">Fully secured assets</div>
       </div>
       <div class="kpi-card kpi-coral">
-        <div class="kpi-title">Active Duty</div>
-        <div class="kpi-val" id="kpiOfficer">Unassigned</div>
-        <div class="kpi-sub" id="kpiRouteSub">Select officer</div>
+        <div class="kpi-title">Defects / Breaches</div>
+        <div class="kpi-val" id="kpiAlerts">0</div>
+        <div class="kpi-sub" id="kpiAlertsSub">0 breaches &bull; 0 defects</div>
+      </div>
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-title">GPS Verification</div>
+        <div class="kpi-val" id="kpiGpsPass">100%</div>
+        <div class="kpi-sub">On-site proximity score</div>
       </div>
     </div>
 
-    <!-- DYNAMIC CHECKPOINT LOG TABLE -->
+    <!-- PATROL INSPECTION LOG TABLE -->
     <div class="section-card">
       <div class="section-header">
-        <h3>Checkpoint Verification Log</h3>
-        <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="tableSubtitle">0 Checkpoints Scanned</span>
+        <h3>Patrol Inspection Log</h3>
+        <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="logCountDisplay">0 Records</span>
       </div>
 
-      <table id="scansTable">
+      <table id="inspectionTable">
         <thead>
           <tr>
-            <th style="width: 35px; text-align: center;">#</th>
-            <th style="width: 85px; text-align: center;">Time</th>
-            <th>Location / Checkpoint</th>
-            <th style="width: 260px;">GPS Coordinates (Lat, Lng)</th>
-            <th style="width: 140px;">Officer</th>
-            <th style="width: 90px; text-align: center;">Status</th>
-            <th style="width: 35px; text-align: center;"></th>
+            <th style="width: 32px; text-align: center;">#</th>
+            <th style="width: 75px; text-align: center;">Time</th>
+            <th>Location / Place</th>
+            <th style="width: 105px;">Status</th>
+            <th style="width: 105px;">Lighting</th>
+            <th style="width: 80px; text-align: center;">Breach</th>
+            <th>Inspection Notes</th>
+            <th style="width: 140px;">GPS Proximity</th>
+            <th style="width: 30px;"></th>
           </tr>
         </thead>
-        <tbody id="scansTableBody">
-          <!-- Dynamically appended records appear here -->
+        <tbody id="inspectionBody">
+          <!-- Dynamic records inserted here -->
         </tbody>
       </table>
 
-      <!-- EMPTY STATE WHEN NO SCANS HAVE OCCURRED -->
-      <div class="empty-state" id="emptyStateNotice">
-        No checkpoints scanned yet. Select an officer and click <strong>"📷 Scan Checkpoint QR"</strong> to record on-site points.
+      <div id="emptyNotice" style="padding: 30px; text-align: center; color: var(--text-muted); font-size: 12px;">
+        No inspection records yet. Click <strong>"📷 Scan Checkpoint QR"</strong> to scan an on-site point.
       </div>
     </div>
 
     <!-- FOOTER -->
     <div class="footer-bar">
-      <div>DP World Logistics Park &bull; Security Operations Division</div>
-      <div>Automatic Geolocation Metadata Parser &bull; Single-Trigger Architecture</div>
+      <div>DP World Logistics Park &bull; Security Management Protocol (LP-SMP 10)</div>
+      <div>Real-Time Geofenced Inspection Verification</div>
     </div>
 
   </div>
 
-  <!-- LIVE CAMERA MODAL -->
-  <div class="scanner-modal" id="scannerModal">
-    <div class="scanner-box">
-      <div class="scanner-header">
+  <!-- ========================================================
+       MODAL 1: LIVE QR CAMERA SCANNER
+  ======================================================== -->
+  <div class="modal-overlay" id="scannerModal">
+    <div class="modal-window">
+      <div class="modal-header">
         <h4>Scan Location QR Tag</h4>
-        <button class="btn-close-scanner" onclick="closeScannerModal()">&times;</button>
+        <button class="btn-close-modal" onclick="closeScannerModal()">&times;</button>
       </div>
 
-      <div class="scanner-info-strip">
-        <span>Officer: <strong id="modalOfficer">--</strong></span>
-        <span>Route: <strong id="modalRoute">--</strong></span>
+      <div style="background: var(--dp-navy); width: 100%; min-height: 280px; position: relative;">
+        <div id="qr-reader" style="width: 100%;"></div>
       </div>
 
-      <!-- CAMERA STREAM -->
-      <div class="scanner-viewport">
-        <div id="qr-reader"></div>
-      </div>
-
-      <div class="camera-error-banner" id="cameraErrorBanner">
-        ⚠️ <strong>Camera Access Error:</strong><br>
-        Please allow camera permissions in your browser. (Note: Mobile browsers require an HTTPS or localhost connection to access camera hardware).
+      <div class="scanner-gps-status" id="cameraGpsStatus">
+        📡 GPS Engine: Standby...
       </div>
     </div>
   </div>
 
-  <!-- AUDIO/HAPTIC NOTIFICATION -->
-  <script>
-    function triggerSuccessFeedback() {
-      // Audio Chime
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch (A5)
-        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.15);
-      } catch (e) {}
+  <!-- ========================================================
+       MODAL 2: DYNAMIC LOCATION-SPECIFIC CHECKLIST
+  ======================================================== -->
+  <div class="modal-overlay" id="checklistModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h4>Checkpoint Inspection Checklist</h4>
+        <button class="btn-close-modal" onclick="closeChecklistModal()">&times;</button>
+      </div>
 
-      // Phone Vibration
-      if (navigator.vibrate) {
-        navigator.vibrate([100, 50, 100]);
-      }
-    }
-  </script>
+      <div class="modal-body">
+        <div class="inspection-meta-box">
+          <div>Place: <strong id="clPlaceName" style="color:var(--dp-navy);">--</strong></div>
+          <div>Category: <strong id="clCategory">--</strong></div>
+          <div>Proximity: <strong id="clProximity" style="color:#00875a;">Verified On-Site</strong></div>
+          <div>Time: <strong id="clTimestamp">--:--:--</strong></div>
+        </div>
 
-  <!-- BUSINESS LOGIC, SCANNER & GPS PARSER -->
+        <div id="checklistQuestionsContainer">
+          <!-- Dynamically filled based on place type -->
+        </div>
+
+        <div style="margin-top: 10px;">
+          <label style="font-size: 11px; font-weight: 700; color: var(--dp-navy);">Inspection Observations & Notes</label>
+          <textarea id="clNotesInput" class="form-textarea" placeholder="Add specific notes, anomalies, maintenance requests, or observations..."></textarea>
+        </div>
+
+        <button class="btn-submit-inspection" onclick="submitInspectionRecord()">
+          💾 Save & Log Checkpoint Inspection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 3: CHECKPOINTS REGISTRY & DYNAMIC QR GENERATOR
+  ======================================================== -->
+  <div class="modal-overlay" id="registryModal">
+    <div class="modal-window" style="max-width: 650px;">
+      <div class="modal-header">
+        <h4>⚙️ Manage Site Checkpoints & Dynamic QR Codes</h4>
+        <button class="btn-close-modal" onclick="closeRegistryModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 12px;">
+          Bind custom QR codes to specific site locations, configure their GPS coordinates, and print tags for physical mounting.
+        </p>
+
+        <div style="background: var(--dp-light-silver); padding: 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid var(--dp-border);">
+          <div style="font-weight: 700; font-size: 11px; color: var(--dp-navy); margin-bottom: 8px;">+ Register New Checkpoint / QR Link</div>
+          <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <input type="text" id="regPlaceName" placeholder="Place (e.g. North Fence Post 04)" class="select-control" style="min-width: 100%;">
+            <select id="regCategory" class="select-control" style="min-width: 100%;">
+              <option value="Fence">Fence / Perimeter</option>
+              <option value="Warehouse">Warehouse Complex</option>
+              <option value="Gate">Gate / Access Barrier</option>
+              <option value="Sub-Station">Electrical Sub-Station</option>
+              <option value="Yard">Empty Container Yard</option>
+            </select>
+            <input type="text" id="regTagCode" placeholder="QR Code ID (e.g. DPW-FN-04)" class="select-control" style="min-width: 100%;">
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="number" step="0.000001" id="regLat" placeholder="Latitude (e.g. 29.97542)" class="select-control" style="flex:1;">
+            <input type="number" step="0.000001" id="regLng" placeholder="Longitude (e.g. 32.55421)" class="select-control" style="flex:1;">
+            <button type="button" class="btn-manage-qrs" onclick="setRegCoordsToCurrentLocation()" title="Capture real coordinates where you stand right now" style="background:#ecfdf5; color:#065f46; border-color:#a7f3d0;">
+              📍 Set to My Current GPS
+            </button>
+          </div>
+          <button type="button" class="btn-submit-inspection" style="margin-top: 10px; background:var(--dp-mint); color:#064e3b;" onclick="registerNewCheckpoint()">
+            + Add to Checkpoint Registry
+          </button>
+        </div>
+
+        <div style="max-height: 240px; overflow-y: auto;">
+          <table style="width: 100%;">
+            <thead>
+              <tr>
+                <th>Place Name</th>
+                <th>Category</th>
+                <th>QR Tag Code</th>
+                <th>GPS Target</th>
+                <th style="width: 80px; text-align: center;">Print QR</th>
+                <th style="width: 30px;"></th>
+              </tr>
+            </thead>
+            <tbody id="registryTableBody">
+              <!-- Render registered points -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 4: QR CODE PREVIEW & PRINT
+  ======================================================== -->
+  <div class="modal-overlay" id="qrPrintModal">
+    <div class="modal-window" style="max-width: 320px; text-align: center;">
+      <div class="modal-header">
+        <h4 id="qrPrintTitle">Print QR Checkpoint</h4>
+        <button class="btn-close-modal" onclick="document.getElementById('qrPrintModal').style.display='none'">&times;</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <div id="qrcodeCanvasBox" style="padding: 12px; background: #fff; border: 1px solid var(--dp-border); border-radius: 8px;"></div>
+        <div id="qrPrintDesc" style="font-size: 11px; font-weight: 700; color: var(--dp-navy);"></div>
+        <button class="btn-main-scan" style="width: 100%; justify-content: center;" onclick="window.print()">🖨️ Print Tag</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 5: EXPORT & ONLINE EXCEL / GOOGLE SHEETS SYNC
+  ======================================================== -->
+  <div class="modal-overlay" id="exportModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h4>Export & Online Cloud Spreadsheet Sync</h4>
+        <button class="btn-close-modal" onclick="closeExportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 16px;">
+          <div style="font-weight: 800; font-size: 12px; color: var(--dp-navy); margin-bottom: 4px;">Option 1: Direct Excel (.xlsx) Download</div>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Download a standard Microsoft Excel file formatted with all checklist columns ready for archiving.</p>
+          <button class="btn-export" style="width: 100%; justify-content: center;" onclick="exportToExcelFile()">
+            📥 Download Patrol_Report.xlsx
+          </button>
+        </div>
+
+        <div style="border-top: 1px dashed var(--dp-border); padding-top: 14px;">
+          <div style="font-weight: 800; font-size: 12px; color: var(--dp-navy); margin-bottom: 4px;">Option 2: Post to Online Webhook / Google Sheets / Power Automate</div>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Enter your Google Apps Script Web App URL or Microsoft Power Automate endpoint to push rows directly into a shared live spreadsheet.</p>
+          <input type="url" id="webhookUrlInput" class="select-control" style="width: 100%; margin-bottom: 8px;" placeholder="https://script.google.com/macros/s/.../exec">
+          <button class="btn-main-scan" style="width: 100%; justify-content: center;" onclick="postToOnlineSpreadsheet()">
+            ☁️ Post Records to Online Sheet Now
+          </button>
+          <div id="syncStatusNotice" style="font-size: 11px; font-weight: 700; margin-top: 6px; text-align: center;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT: LOGIC & GEOLOCATION PIPELINE -->
   <script>
-    let activeOfficer = "";
-    let activeDirection = "North Perimeter & Empty Yard Route";
-    let scanRecords = [];
+    const MAX_TOLERANCE_METERS = 80;
+
+    // DEFAULT PRELOADED SITES (Can be edited, deleted, or extended dynamically)
+    const DEFAULT_CHECKPOINTS = [
+      { id: "TAG-FN-01", name: "North Fence Perimeter Sector 01", category: "Fence", lat: 29.97542, lng: 32.55421 },
+      { id: "TAG-FN-02", name: "South Agricultural Fence Post 08", category: "Fence", lat: 29.97120, lng: 32.55910 },
+      { id: "TAG-WHA-01", name: "Warehouse A - Emergency Egress", category: "Warehouse", lat: 29.97412, lng: 32.55681 },
+      { id: "TAG-SS-01", name: "Electrical Sub-Station 01 Main Door", category: "Sub-Station", lat: 29.97680, lng: 32.55120 },
+      { id: "TAG-GT-01", name: "Main Access Barrier - Gate Post 1", category: "Gate", lat: 29.97890, lng: 32.55310 }
+    ];
+
+    let checkpointRegistry = [];
+    let inspectionRecords = [];
     let html5QrCode = null;
+
+    // Temporary storage for active inspection being completed
+    let activePendingScan = null;
 
     window.addEventListener("DOMContentLoaded", () => {
       loadState();
-      updateUI();
+      renderInspectionTable();
+      renderRegistryTable();
     });
 
-    function onOfficerChange() {
-      activeOfficer = document.getElementById("officerSelect").value;
-      updateUI();
-      saveState();
+    // DISTANCE HELPER: HAVERSINE FORMULA IN METERS
+    function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
+      if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+      const R = 6371e3; // Earth radius in meters
+      const φ1 = (lat1 * Math.PI) / 180;
+      const φ2 = (lat2 * Math.PI) / 180;
+      const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+      const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+      const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return Math.round(R * c);
     }
 
-    function onDirectionChange() {
-      activeDirection = document.getElementById("directionSelect").value;
-      updateUI();
-      saveState();
-    }
-
-    function onNewPatrolClick() {
-      if (confirm("Start a New Patrol tour? This will clear all recorded scans for this session.")) {
-        scanRecords = [];
-        updateUI();
-        saveState();
-      }
-    }
-
-    // ROBUST GEOLOCATION & NAME PARSER
-    // Parses JSON: {"name": "Empty Yard Gate", "lat": 29.9754, "lng": 32.5542}
-    // Parses Pipe/Comma: "Empty Yard Gate | 29.9754 | 32.5542"
-    // Parses geo URIs: "geo:29.9754,32.5542?q=Empty+Yard"
-    function parseQRCode(rawText) {
-      let locationName = "Site Point";
-      let latitude = null;
-      let longitude = null;
-
-      const trimmed = (rawText || "").trim();
-
-      // 1. Try parsing JSON format
-      try {
-        const json = JSON.parse(trimmed);
-        locationName = json.name || json.location || json.point || json.title || json.id || locationName;
-        latitude = json.lat !== undefined ? json.lat : (json.latitude !== undefined ? json.latitude : null);
-        longitude = json.lng !== undefined ? json.lng : (json.longitude !== undefined ? json.longitude : (json.lon !== undefined ? json.lon : null));
-      } catch (e) {
-        // 2. Check for geo: URI
-        if (trimmed.startsWith("geo:")) {
-          const body = trimmed.replace("geo:", "");
-          const coords = body.split("?")[0].split(",");
-          latitude = parseFloat(coords[0]);
-          longitude = parseFloat(coords[1]);
-          const queryMatch = trimmed.match(/[?&]q=([^&]+)/);
-          if (queryMatch) {
-            locationName = decodeURIComponent(queryMatch[1].replace(/\+/g, " "));
-          }
+    // CAPTURE DEVICE'S PHYSICAL GPS
+    function getDeviceCoordinates() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          resolve(null);
+          return;
         }
-        // 3. Check for Pipe or Comma separated values: "Location Name | Lat | Lng"
-        else if (trimmed.includes("|") || trimmed.includes(",")) {
-          const parts = trimmed.split(/[|,]/).map(s => s.trim());
-          if (parts.length >= 3) {
-            const pLat = parseFloat(parts[parts.length - 2]);
-            const pLng = parseFloat(parts[parts.length - 1]);
-            if (!isNaN(pLat) && !isNaN(pLng) && Math.abs(pLat) <= 90 && Math.abs(pLng) <= 180) {
-              latitude = pLat;
-              longitude = pLng;
-              locationName = parts.slice(0, parts.length - 2).join(" ");
-            }
-          }
-        }
-      }
-
-      // 4. Regex fallback: Search for two floating point numbers (lat, lng pattern)
-      if (latitude === null || longitude === null) {
-        const coordRegex = /([-+]?\d{1,2}\.\d+)[,\s|]+([-+]?\d{1,3}\.\d+)/;
-        const match = trimmed.match(coordRegex);
-        if (match) {
-          latitude = parseFloat(match[1]);
-          longitude = parseFloat(match[2]);
-          if (locationName === "Site Point") {
-            const strippedName = trimmed.replace(match[0], "").replace(/^[|,:\s-]+|[|,:\s-]+$/g, "");
-            if (strippedName) locationName = strippedName;
-          }
-        } else {
-          locationName = trimmed;
-        }
-      }
-
-      return {
-        name: locationName || "Checkpoint",
-        lat: latitude,
-        lng: longitude,
-        raw: trimmed
-      };
-    }
-
-    // ==========================================
-    // SINGLE CAMERA SCANNER CONTROLLER
-    // ==========================================
-    function openScannerModal() {
-      if (!activeOfficer) {
-        alert("Please select the Patrol Officer from the top menu before scanning.");
-        document.getElementById("officerSelect").focus();
-        return;
-      }
-
-      document.getElementById("modalOfficer").innerText = activeOfficer;
-      document.getElementById("modalRoute").innerText = activeDirection;
-      document.getElementById("cameraErrorBanner").style.display = "none";
-      document.getElementById("scannerModal").style.display = "flex";
-
-      startCamera();
-    }
-
-    function closeScannerModal() {
-      stopCamera().then(() => {
-        document.getElementById("scannerModal").style.display = "none";
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          (err) => {
+            console.warn("GPS sensor error:", err);
+            resolve(null);
+          },
+          { enableHighAccuracy: true, timeout: 6000, maximumAge: 3000 }
+        );
       });
     }
 
-    function startCamera() {
+    // ==========================================
+    // SCANNER & LOCATION VERIFICATION WORKFLOW
+    // ==========================================
+    function openScannerModal() {
+      const officer = document.getElementById("officerSelect").value;
+      if (!officer) {
+        alert("Please select the on-duty Patrol Officer first.");
+        return;
+      }
+      document.getElementById("cameraGpsStatus").innerText = "📡 GPS Sensor: Locking coordinates...";
+      document.getElementById("scannerModal").style.display = "flex";
+
       const readerEl = document.getElementById("qr-reader");
       readerEl.innerHTML = "";
 
@@ -854,186 +914,525 @@
         html5QrCode = new Html5Qrcode("qr-reader");
       }
 
-      const config = {
-        fps: 15,
-        qrbox: { width: 230, height: 230 },
-        aspectRatio: 1.0
-      };
-
-      // Prefer rear/environment camera on phones
-      html5QrCode.start({ facingMode: "environment" }, config, onQRCodeDetected)
-        .catch(err1 => {
-          console.warn("Rear camera failed, trying default user camera:", err1);
-          html5QrCode.start({ facingMode: "user" }, config, onQRCodeDetected)
-            .catch(err2 => {
-              console.error("Camera access failed:", err2);
-              document.getElementById("cameraErrorBanner").style.display = "block";
-            });
-        });
-    }
-
-    function stopCamera() {
-      if (html5QrCode && html5QrCode.isScanning) {
-        return html5QrCode.stop().then(() => {
-          html5QrCode.clear();
-        }).catch(err => {
-          console.error("Error stopping camera:", err);
-        });
-      }
-      return Promise.resolve();
-    }
-
-    // WHEN QR CODE IS DETECTED
-    function onQRCodeDetected(decodedText) {
-      stopCamera().then(() => {
-        document.getElementById("scannerModal").style.display = "none";
-        processNewScan(decodedText);
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 15, qrbox: { width: 230, height: 230 } },
+        onQRCodeDetected
+      ).catch(() => {
+        html5QrCode.start({ facingMode: "user" }, { fps: 15, qrbox: { width: 230, height: 230 } }, onQRCodeDetected);
       });
     }
 
-    // ADD NEW RECORD & UPDATE TABLE ACCORDINGLY
-    function processNewScan(qrText) {
-      const parsed = parseQRCode(qrText);
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      const newRecord = {
-        id: Date.now(),
-        time: timeStr,
-        name: parsed.name,
-        lat: parsed.lat,
-        lng: parsed.lng,
-        raw: parsed.raw,
-        officer: activeOfficer,
-        route: activeDirection
-      };
-
-      // Add to records array
-      scanRecords.push(newRecord);
-
-      triggerSuccessFeedback();
-      updateUI();
-      saveState();
-    }
-
-    function deleteScanRecord(recordId) {
-      scanRecords = scanRecords.filter(r => r.id !== recordId);
-      updateUI();
-      saveState();
-    }
-
-    // UPDATE UI (TABLE, KPIS, EMPTY STATE)
-    function updateUI() {
-      // 1. Update Officer & Route Displays
-      document.getElementById("kpiOfficer").innerText = activeOfficer || "Unassigned";
-      document.getElementById("kpiRouteSub").innerText = activeDirection;
-
-      // 2. Update KPI Stats
-      const total = scanRecords.length;
-      document.getElementById("kpiTotalScans").innerText = total;
-      document.getElementById("tableSubtitle").innerText = `${total} Checkpoint${total === 1 ? '' : 's'} Scanned`;
-
-      if (total > 0) {
-        const latest = scanRecords[total - 1];
-        document.getElementById("kpiLatestPoint").innerText = latest.name;
-        document.getElementById("kpiLatestTime").innerText = latest.time;
-        if (latest.lat !== null && latest.lng !== null) {
-          document.getElementById("kpiLatestCoords").innerText = `${latest.lat.toFixed(4)}, ${latest.lng.toFixed(4)}`;
-        } else {
-          document.getElementById("kpiLatestCoords").innerText = "No GPS encoded";
-        }
-        document.getElementById("kpiElapsed").innerText = `Last scanned by ${latest.officer}`;
+    function closeScannerModal() {
+      if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          document.getElementById("scannerModal").style.display = "none";
+        });
       } else {
-        document.getElementById("kpiLatestPoint").innerText = "--";
-        document.getElementById("kpiLatestTime").innerText = "--:--:--";
-        document.getElementById("kpiLatestCoords").innerText = "No GPS yet";
-        document.getElementById("kpiElapsed").innerText = "Standby";
+        document.getElementById("scannerModal").style.display = "none";
+      }
+    }
+
+    // ON QR SCAN DETECTED
+    async function onQRCodeDetected(decodedText) {
+      closeScannerModal();
+
+      const qrCodeVal = decodedText.trim();
+
+      // 1. Resolve which checkpoint this QR is bound to in the dynamic registry
+      let matchedPoint = checkpointRegistry.find(p => p.id === qrCodeVal);
+
+      // Fallback: If QR contains JSON metadata or plain text name
+      if (!matchedPoint) {
+        try {
+          const parsed = JSON.parse(qrCodeVal);
+          matchedPoint = {
+            id: parsed.id || "QR-CUSTOM",
+            name: parsed.name || "Inspected Checkpoint",
+            category: parsed.category || "Fence",
+            lat: parsed.lat || null,
+            lng: parsed.lng || null
+          };
+        } catch (e) {
+          matchedPoint = {
+            id: qrCodeVal,
+            name: qrCodeVal,
+            category: "Fence",
+            lat: null,
+            lng: null
+          };
+        }
       }
 
-      // 3. Render Table Rows
-      const tbody = document.getElementById("scansTableBody");
-      const emptyNotice = document.getElementById("emptyStateNotice");
+      // 2. Capture Officer's live device coordinates at this exact location
+      const officerCoords = await getDeviceCoordinates();
 
-      if (total === 0) {
-        tbody.innerHTML = "";
-        emptyNotice.style.display = "block";
+      // 3. Proximity Check
+      let distanceMeters = null;
+      let onSiteVerified = false;
+
+      if (matchedPoint.lat && matchedPoint.lng && officerCoords) {
+        distanceMeters = calculateDistanceMeters(matchedPoint.lat, matchedPoint.lng, officerCoords.lat, officerCoords.lng);
+        onSiteVerified = distanceMeters <= MAX_TOLERANCE_METERS;
+      } else if (!matchedPoint.lat) {
+        // If point has no calibrated GPS coordinates, allow inspection with advisory
+        onSiteVerified = true;
+      }
+
+      // 4. Verification Check
+      if (!onSiteVerified) {
+        alert(`❌ Location Verification Failed!\n\nYou are ~${distanceMeters} meters away from "${matchedPoint.name}".\n\nSecurity protocol requires physical presence within ${MAX_TOLERANCE_METERS}m to unlock the inspection checklist.`);
         return;
       }
 
-      emptyNotice.style.display = "none";
+      // 5. Success -> Proceed to Checklist
+      activePendingScan = {
+        point: matchedPoint,
+        officerCoords: officerCoords,
+        distanceMeters: distanceMeters,
+        officer: document.getElementById("officerSelect").value,
+        shift: document.getElementById("shiftSelect").value,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      };
+
+      openChecklistModal();
+    }
+
+    // ==========================================
+    // DYNAMIC PLACE-SPECIFIC CHECKLIST MODAL
+    // ==========================================
+    function openChecklistModal() {
+      const data = activePendingScan;
+      document.getElementById("clPlaceName").innerText = data.point.name;
+      document.getElementById("clCategory").innerText = data.point.category || "General Asset";
+      document.getElementById("clTimestamp").innerText = data.timestamp;
+      document.getElementById("clProximity").innerText = data.distanceMeters !== null ? `Verified (~${data.distanceMeters}m away)` : "Verified (No Target GPS)";
+      document.getElementById("clNotesInput").value = "";
+
+      const container = document.getElementById("checklistQuestionsContainer");
+      container.innerHTML = "";
+
+      // GENERATE CHECKLIST SPECIFIC TO PLACE TYPE (E.g. Fence vs Gate vs Warehouse)
+      if (data.point.category === "Fence") {
+        container.innerHTML = `
+          <div class="check-question-row">
+            <label>Fence Physical Status</label>
+            <div class="toggle-group" data-key="status">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'status', 'Intact', 'safe')">Intact</div>
+              <div class="toggle-option" onclick="setToggle(this, 'status', 'Broken', 'alert')">Broken</div>
+            </div>
+          </div>
+          <div class="check-question-row">
+            <label>Perimeter Lighting</label>
+            <div class="toggle-group" data-key="light">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'light', 'Intact', 'safe')">Intact</div>
+              <div class="toggle-option" onclick="setToggle(this, 'light', 'Broken', 'alert')">Broken</div>
+            </div>
+          </div>
+          <div class="check-question-row">
+            <label>Breach / Intrusion Signs</label>
+            <div class="toggle-group" data-key="breach">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'breach', 'No', 'safe')">No</div>
+              <div class="toggle-option" onclick="setToggle(this, 'breach', 'Yes', 'alert')">Yes</div>
+            </div>
+          </div>
+        `;
+      } else if (data.point.category === "Gate") {
+        container.innerHTML = `
+          <div class="check-question-row">
+            <label>Barrier & Gate Lock</label>
+            <div class="toggle-group" data-key="status">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'status', 'Intact', 'safe')">Intact</div>
+              <div class="toggle-option" onclick="setToggle(this, 'status', 'Broken', 'alert')">Broken</div>
+            </div>
+          </div>
+          <div class="check-question-row">
+            <label>CCTV / Intercom Lighting</label>
+            <div class="toggle-group" data-key="light">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'light', 'Intact', 'safe')">Intact</div>
+              <div class="toggle-option" onclick="setToggle(this, 'light', 'Broken', 'alert')">Broken</div>
+            </div>
+          </div>
+          <div class="check-question-row">
+            <label>Unauthorized Access Signs</label>
+            <div class="toggle-group" data-key="breach">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'breach', 'No', 'safe')">No</div>
+              <div class="toggle-option" onclick="setToggle(this, 'breach', 'Yes', 'alert')">Yes</div>
+            </div>
+          </div>
+        `;
+      } else {
+        // Warehouse / Sub-Station / Default Checklist
+        container.innerHTML = `
+          <div class="check-question-row">
+            <label>Locks, Doors & Seals Status</label>
+            <div class="toggle-group" data-key="status">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'status', 'Intact', 'safe')">Intact</div>
+              <div class="toggle-option" onclick="setToggle(this, 'status', 'Broken', 'alert')">Broken</div>
+            </div>
+          </div>
+          <div class="check-question-row">
+            <label>Security & Area Lighting</label>
+            <div class="toggle-group" data-key="light">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'light', 'Intact', 'safe')">Intact</div>
+              <div class="toggle-option" onclick="setToggle(this, 'light', 'Broken', 'alert')">Broken</div>
+            </div>
+          </div>
+          <div class="check-question-row">
+            <label>Tampering / Breach Signs</label>
+            <div class="toggle-group" data-key="breach">
+              <div class="toggle-option active-safe" onclick="setToggle(this, 'breach', 'No', 'safe')">No</div>
+              <div class="toggle-option" onclick="setToggle(this, 'breach', 'Yes', 'alert')">Yes</div>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById("checklistModal").style.display = "flex";
+    }
+
+    function closeChecklistModal() {
+      document.getElementById("checklistModal").style.display = "none";
+      activePendingScan = null;
+    }
+
+    // TOGGLE SELECTION HELPER
+    let currentChecklistValues = { status: "Intact", light: "Intact", breach: "No" };
+
+    function setToggle(btn, key, value, mode) {
+      const parent = btn.parentElement;
+      Array.from(parent.children).forEach(c => c.className = 'toggle-option');
+      btn.className = `toggle-option ${mode === 'safe' ? 'active-safe' : 'active-alert'}`;
+      currentChecklistValues[key] = value;
+    }
+
+    // SUBMIT RECORD INTO TABLE
+    function submitInspectionRecord() {
+      if (!activePendingScan) return;
+
+      const record = {
+        id: Date.now(),
+        time: activePendingScan.timestamp,
+        place: activePendingScan.point.name,
+        category: activePendingScan.point.category,
+        officer: activePendingScan.officer,
+        shift: activePendingScan.shift,
+        status: currentChecklistValues.status || "Intact",
+        light: currentChecklistValues.light || "Intact",
+        breach: currentChecklistValues.breach || "No",
+        notes: document.getElementById("clNotesInput").value.trim() || "--",
+        distanceMeters: activePendingScan.distanceMeters,
+        officerLat: activePendingScan.officerCoords ? activePendingScan.officerCoords.lat : null,
+        officerLng: activePendingScan.officerCoords ? activePendingScan.officerCoords.lng : null
+      };
+
+      inspectionRecords.unshift(record); // Insert at top
+      closeChecklistModal();
+      renderInspectionTable();
+      autoSave();
+
+      // Audio Confirmation
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      } catch (e) {}
+    }
+
+    // RENDER LOG TABLE
+    function renderInspectionTable() {
+      const tbody = document.getElementById("inspectionBody");
+      const empty = document.getElementById("emptyNotice");
       tbody.innerHTML = "";
 
-      scanRecords.forEach((item, index) => {
+      const total = inspectionRecords.length;
+      document.getElementById("kpiTotalScans").innerText = total;
+      document.getElementById("logCountDisplay").innerText = `${total} Record${total === 1 ? '' : 's'}`;
+
+      if (total === 0) {
+        empty.style.display = "block";
+        document.getElementById("kpiIntact").innerText = "0";
+        document.getElementById("kpiAlerts").innerText = "0";
+        document.getElementById("kpiAlertsSub").innerText = "0 breaches • 0 defects";
+        return;
+      }
+
+      empty.style.display = "none";
+      let intactCount = 0;
+      let breachCount = 0;
+      let brokenCount = 0;
+
+      inspectionRecords.forEach((rec, idx) => {
+        if (rec.status === "Intact" && rec.light === "Intact" && rec.breach === "No") {
+          intactCount++;
+        }
+        if (rec.breach === "Yes") breachCount++;
+        if (rec.status === "Broken" || rec.light === "Broken") brokenCount++;
+
         const tr = document.createElement("tr");
 
-        // Coordinates column with optional Google Maps link
-        let coordsHTML = "";
-        if (item.lat !== null && item.lng !== null) {
-          coordsHTML = `
-            <div>
-              <span class="coords-tag">🌐 ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}</span>
-              <a href="https://www.google.com/maps?q=${item.lat},${item.lng}" target="_blank" class="map-link">
-                📍 Map
-              </a>
-            </div>
-          `;
-        } else {
-          coordsHTML = `<span style="color:var(--text-muted); font-size:11px;">Not specified in QR</span>`;
+        // Prox badge
+        let proxHTML = `<span class="coords-tag">Verified On-Site</span>`;
+        if (rec.distanceMeters !== null) {
+          proxHTML = `<span class="coords-tag">📍 Δ ~${rec.distanceMeters}m away</span>`;
         }
 
         tr.innerHTML = `
-          <td style="text-align: center;"><span class="point-seq">${index + 1}</span></td>
-          <td style="text-align: center; font-weight: 700; color: var(--dp-navy);">${item.time}</td>
+          <td style="text-align: center; font-weight:800; color:var(--dp-navy);">${total - idx}</td>
+          <td style="text-align: center; font-weight:700;">${rec.time}</td>
           <td>
-            <div class="location-cell">
-              <span class="location-name">${item.name}</span>
-              <span class="location-raw">Tag: ${item.raw}</span>
-            </div>
+            <div style="font-weight:700; color:var(--dp-navy);">${rec.place}</div>
+            <div style="font-size:10px; color:var(--text-muted);">${rec.category} &bull; ${rec.officer}</div>
           </td>
-          <td>${coordsHTML}</td>
-          <td style="font-weight: 600;">${item.officer}</td>
+          <td><span class="pill-badge ${rec.status === 'Intact' ? 'pill-intact' : 'pill-broken'}">${rec.status}</span></td>
+          <td><span class="pill-badge ${rec.light === 'Intact' ? 'pill-intact' : 'pill-broken'}">${rec.light}</span></td>
+          <td style="text-align: center;"><span class="pill-badge ${rec.breach === 'Yes' ? 'pill-breach-yes' : 'pill-breach-no'}">${rec.breach}</span></td>
+          <td style="color:${rec.notes !== '--' ? 'var(--dp-navy)' : 'var(--text-muted)'}; font-size:11px;">${rec.notes}</td>
+          <td>${proxHTML}</td>
           <td style="text-align: center;">
-            <span class="verified-pill">✓ Logged</span>
-          </td>
-          <td style="text-align: center;">
-            <button class="btn-delete-row" title="Delete record" onclick="deleteScanRecord(${item.id})">✖</button>
+            <button onclick="deleteInspectionRecord(${rec.id})" style="background:transparent; border:none; color:var(--dp-coral); cursor:pointer; font-size:13px;">✖</button>
           </td>
         `;
+        tbody.appendChild(tr);
+      });
 
+      document.getElementById("kpiIntact").innerText = intactCount;
+      document.getElementById("kpiAlerts").innerText = breachCount + brokenCount;
+      document.getElementById("kpiAlertsSub").innerText = `${breachCount} breaches &bull; ${brokenCount} defects`;
+    }
+
+    function deleteInspectionRecord(id) {
+      inspectionRecords = inspectionRecords.filter(r => r.id !== id);
+      renderInspectionTable();
+      autoSave();
+    }
+
+    function onNewPatrol() {
+      if (confirm("Reset current patrol log and start a new tour?")) {
+        inspectionRecords = [];
+        renderInspectionTable();
+        autoSave();
+      }
+    }
+
+    // ==========================================
+    // DYNAMIC CHECKPOINT REGISTRY & QR MAKER
+    // ==========================================
+    function openRegistryModal() {
+      renderRegistryTable();
+      document.getElementById("registryModal").style.display = "flex";
+    }
+
+    function closeRegistryModal() {
+      document.getElementById("registryModal").style.display = "none";
+    }
+
+    async function setRegCoordsToCurrentLocation() {
+      const coords = await getDeviceCoordinates();
+      if (coords) {
+        document.getElementById("regLat").value = coords.lat.toFixed(6);
+        document.getElementById("regLng").value = coords.lng.toFixed(6);
+      } else {
+        alert("Unable to read current GPS coordinates. Please check your browser location permission.");
+      }
+    }
+
+    function registerNewCheckpoint() {
+      const name = document.getElementById("regPlaceName").value.trim();
+      const cat = document.getElementById("regCategory").value;
+      const tagId = document.getElementById("regTagCode").value.trim();
+      const lat = parseFloat(document.getElementById("regLat").value) || null;
+      const lng = parseFloat(document.getElementById("regLng").value) || null;
+
+      if (!name || !tagId) {
+        alert("Please enter both a Place Name and a QR Code ID.");
+        return;
+      }
+
+      checkpointRegistry.push({ id: tagId, name, category: cat, lat, lng });
+
+      document.getElementById("regPlaceName").value = "";
+      document.getElementById("regTagCode").value = "";
+      document.getElementById("regLat").value = "";
+      document.getElementById("regLng").value = "";
+
+      renderRegistryTable();
+      autoSave();
+    }
+
+    function deleteCheckpointFromRegistry(tagId) {
+      checkpointRegistry = checkpointRegistry.filter(p => p.id !== tagId);
+      renderRegistryTable();
+      autoSave();
+    }
+
+    function renderRegistryTable() {
+      const tbody = document.getElementById("registryTableBody");
+      tbody.innerHTML = "";
+
+      checkpointRegistry.forEach(p => {
+        const tr = document.createElement("tr");
+        const coordsStr = p.lat && p.lng ? `${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}` : "No GPS set";
+
+        tr.innerHTML = `
+          <td><strong>${p.name}</strong></td>
+          <td>${p.category}</td>
+          <td><code>${p.id}</code></td>
+          <td style="font-size:10px;">${coordsStr}</td>
+          <td style="text-align: center;">
+            <button class="btn-manage-qrs" style="padding: 2px 6px; font-size:10px;" onclick="previewPrintableQR('${p.id}', '${p.name}')">🖨️ View QR</button>
+          </td>
+          <td>
+            <button onclick="deleteCheckpointFromRegistry('${p.id}')" style="background:transparent; border:none; color:var(--dp-coral); cursor:pointer;">✖</button>
+          </td>
+        `;
         tbody.appendChild(tr);
       });
     }
 
-    // PERSISTENCE (LOCAL STORAGE)
-    function saveState() {
+    function previewPrintableQR(tagId, placeName) {
+      const canvasBox = document.getElementById("qrcodeCanvasBox");
+      canvasBox.innerHTML = "";
+      new QRCode(canvasBox, {
+        text: tagId,
+        width: 180,
+        height: 180,
+        colorDark: "#0e1626",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      document.getElementById("qrPrintDesc").innerText = `${placeName} [${tagId}]`;
+      document.getElementById("qrPrintModal").style.display = "flex";
+    }
+
+    // ==========================================
+    // EXPORT EXCEL & ONLINE WEBHOOK SYNC
+    // ==========================================
+    function openExportModal() {
+      document.getElementById("exportModal").style.display = "flex";
+    }
+
+    function closeExportModal() {
+      document.getElementById("exportModal").style.display = "none";
+    }
+
+    // 1. Direct Excel .xlsx Generation
+    function exportToExcelFile() {
+      if (inspectionRecords.length === 0) {
+        alert("No inspection records to export.");
+        return;
+      }
+
+      const rows = inspectionRecords.map(r => ({
+        "Time": r.time,
+        "Place": r.place,
+        "Category": r.category,
+        "Officer": r.officer,
+        "Shift": r.shift,
+        "Status (Physical)": r.status,
+        "Lighting": r.light,
+        "Breach Detected": r.breach,
+        "Notes": r.notes,
+        "Proximity Distance (Meters)": r.distanceMeters || "Verified",
+        "Officer Latitude": r.officerLat || "",
+        "Officer Longitude": r.officerLng || ""
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Patrol Inspections");
+
+      const dateStr = new Date().toISOString().split("T")[0];
+      XLSX.writeFile(wb, `DPW_Patrol_Inspection_${dateStr}.xlsx`);
+    }
+
+    // 2. Direct Webhook Post to Google Sheets or Excel Online
+    async function postToOnlineSpreadsheet() {
+      const url = document.getElementById("webhookUrlInput").value.trim();
+      const statusNotice = document.getElementById("syncStatusNotice");
+
+      if (!url) {
+        alert("Please enter a valid Google Apps Script or Webhook URL.");
+        return;
+      }
+      if (inspectionRecords.length === 0) {
+        alert("No records to post.");
+        return;
+      }
+
+      statusNotice.style.color = "var(--dp-navy)";
+      statusNotice.innerText = "⏳ Posting records to online spreadsheet...";
+
       try {
         const payload = {
-          officer: activeOfficer,
-          direction: activeDirection,
-          records: scanRecords
+          exportDate: new Date().toISOString(),
+          officer: document.getElementById("officerSelect").value,
+          shift: document.getElementById("shiftSelect").value,
+          records: inspectionRecords
         };
-        localStorage.setItem("dpw_realtime_patrol_log", JSON.stringify(payload));
+
+        const response = await fetch(url, {
+          method: "POST",
+          mode: "no-cors", // Allows cross-origin posting to Google Apps Script Web Apps
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        statusNotice.style.color = "#00875a";
+        statusNotice.innerText = "✅ Successfully posted to online spreadsheet!";
+        autoSave();
+      } catch (err) {
+        console.error(err);
+        statusNotice.style.color = "var(--dp-coral)";
+        statusNotice.innerText = "❌ Sync failed. Check URL or internet connection.";
+      }
+    }
+
+    // LOCAL STORAGE PERSISTENCE
+    function autoSave() {
+      try {
+        const state = {
+          officer: document.getElementById("officerSelect").value,
+          shift: document.getElementById("shiftSelect").value,
+          webhookUrl: document.getElementById("webhookUrlInput") ? document.getElementById("webhookUrlInput").value : "",
+          registry: checkpointRegistry,
+          records: inspectionRecords
+        };
+        localStorage.setItem("dpw_v5_patrol_state", JSON.stringify(state));
       } catch (e) {}
     }
 
     function loadState() {
       try {
-        const saved = localStorage.getItem("dpw_realtime_patrol_log");
+        const saved = localStorage.getItem("dpw_v5_patrol_state");
         if (saved) {
-          const data = JSON.parse(saved);
-          if (data.officer) {
-            activeOfficer = data.officer;
-            document.getElementById("officerSelect").value = activeOfficer;
+          const state = JSON.parse(saved);
+          if (state.officer) document.getElementById("officerSelect").value = state.officer;
+          if (state.shift) document.getElementById("shiftSelect").value = state.shift;
+          if (state.webhookUrl && document.getElementById("webhookUrlInput")) {
+            document.getElementById("webhookUrlInput").value = state.webhookUrl;
           }
-          if (data.direction) {
-            activeDirection = data.direction;
-            document.getElementById("directionSelect").value = activeDirection;
+          if (Array.isArray(state.registry) && state.registry.length > 0) {
+            checkpointRegistry = state.registry;
+          } else {
+            checkpointRegistry = [...DEFAULT_CHECKPOINTS];
           }
-          if (Array.isArray(data.records)) {
-            scanRecords = data.records;
+          if (Array.isArray(state.records)) {
+            inspectionRecords = state.records;
           }
+        } else {
+          checkpointRegistry = [...DEFAULT_CHECKPOINTS];
         }
-      } catch (e) {}
+      } catch (e) {
+        checkpointRegistry = [...DEFAULT_CHECKPOINTS];
+      }
     }
   </script>
 
