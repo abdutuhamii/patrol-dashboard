@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DP World - Guard Tour Patrol QR Scanner</title>
+  <title>DP World - Real-Time GPS Patrol QR Scanner</title>
 
-  <!-- Official HTML5 QR Code Engine Library -->
+  <!-- HTML5 QR Code Engine Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
   <style>
@@ -39,7 +39,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 12px;
@@ -96,7 +96,13 @@
       margin-top: 3px;
     }
 
-    .header-badge {
+    .header-badges {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .badge {
       display: inline-flex;
       align-items: center;
       gap: 5px;
@@ -109,17 +115,17 @@
       border: 1px solid #a7f3d0;
     }
 
-    /* CONTROLS TOOLBAR */
+    /* PATROL CONTROLS TOOLBAR */
     .patrol-toolbar {
       background: var(--dp-light-silver);
       border: 1px solid var(--dp-border);
       border-radius: 10px;
-      padding: 12px 16px;
+      padding: 14px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 18px;
     }
 
@@ -146,7 +152,7 @@
     }
 
     .select-control {
-      padding: 6px 12px;
+      padding: 7px 12px;
       border-radius: 6px;
       border: 1.5px solid var(--dp-border);
       background: #ffffff;
@@ -164,25 +170,56 @@
       box-shadow: 0 0 0 2px rgba(0, 214, 143, 0.2);
     }
 
-    .btn-new-patrol {
-      background: #fff1f2;
-      color: var(--dp-coral);
-      border: 1.5px solid #ffe4e6;
-      padding: 8px 16px;
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* THE SINGLE PRIMARY SCAN BUTTON */
+    .btn-main-scan {
+      background: var(--dp-mint);
+      color: #064e3b;
+      border: 1.5px solid #00b377;
+      padding: 8px 18px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       transition: all 0.15s;
-      align-self: flex-end;
+      box-shadow: 0 2px 8px rgba(0, 214, 143, 0.25);
+    }
+
+    .btn-main-scan:hover {
+      background: #00bf7f;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 214, 143, 0.35);
+    }
+
+    .btn-main-scan:active {
+      transform: translateY(0);
+    }
+
+    .btn-new-patrol {
+      background: #ffffff;
+      color: var(--dp-coral);
+      border: 1.5px solid #ffe4e6;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
     }
 
     .btn-new-patrol:hover {
-      background: var(--dp-coral);
-      color: #ffffff;
+      background: #fff1f2;
       border-color: var(--dp-coral);
     }
 
@@ -226,36 +263,25 @@
     }
 
     .kpi-val {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       color: var(--dp-navy);
       line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .kpi-sub {
       font-size: 10px;
       color: var(--text-muted);
       margin-top: 2px;
-    }
-
-    /* PROGRESS BAR */
-    .progress-bar-container {
-      width: 100%;
-      height: 7px;
-      background: var(--dp-light-silver);
-      border-radius: 4px;
+      white-space: nowrap;
       overflow: hidden;
-      margin-bottom: 18px;
+      text-overflow: ellipsis;
     }
 
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--dp-mint);
-      transition: width 0.3s ease;
-    }
-
-    /* CHECKPOINT RECORDS TABLE */
+    /* TABLE SECTION */
     .section-card {
       border: 1px solid var(--dp-border);
       border-radius: 8px;
@@ -293,7 +319,7 @@
       font-weight: 700;
       font-size: 10.5px;
       text-align: left;
-      padding: 7px 10px;
+      padding: 8px 10px;
       text-transform: uppercase;
       border-bottom: 1px solid var(--dp-border);
     }
@@ -308,111 +334,98 @@
       border-bottom: none;
     }
 
-    tr.row-verified {
-      background: rgba(0, 214, 143, 0.05);
-    }
-
-    tr.row-mismatch {
-      background: rgba(255, 59, 105, 0.05);
-    }
-
     .point-seq {
       font-weight: 800;
       color: var(--dp-navy);
       display: inline-block;
-      width: 22px;
+      width: 24px;
       text-align: center;
     }
 
-    .point-info {
+    .location-cell {
       display: flex;
       flex-direction: column;
     }
 
-    .point-name {
+    .location-name {
       font-weight: 700;
       color: var(--dp-navy);
       font-size: 12.5px;
     }
 
-    .point-code {
+    .location-raw {
       font-size: 10px;
-      font-family: monospace;
       color: var(--text-muted);
-      margin-top: 1px;
+      font-family: monospace;
     }
 
-    /* SCAN BUTTON STATES */
-    .btn-scan {
-      background: var(--dp-navy);
-      color: #ffffff;
-      border: none;
-      padding: 7px 14px;
-      border-radius: 5px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.15s;
-    }
-
-    .btn-scan:hover:not(:disabled) {
-      background: #1e293b;
-      transform: translateY(-1px);
-    }
-
-    /* DISABLED ON SUCCESS */
-    .btn-scan:disabled {
-      background: #cbd5e1;
-      color: #64748b;
-      cursor: not-allowed;
-      border: 1px solid #cbd5e1;
-      transform: none;
-      box-shadow: none;
-    }
-
-    /* RETRY BUTTON ON MISMATCH */
-    .btn-scan.btn-scan-retry {
-      background: #ea580c;
-      color: #ffffff;
-    }
-
-    .btn-scan.btn-scan-retry:hover {
-      background: #c2410c;
-    }
-
-    /* POINT COMPARE BADGES */
-    .compare-status {
+    /* COORDINATES PILL */
+    .coords-tag {
       display: inline-flex;
       align-items: center;
       gap: 5px;
       padding: 3px 8px;
       border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--dp-navy);
+      border: 1px solid var(--dp-border);
+      font-family: monospace;
+    }
+
+    .map-link {
       font-size: 10.5px;
       font-weight: 700;
+      color: #0284c7;
+      text-decoration: none;
+      margin-left: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .map-link:hover {
+      text-decoration: underline;
+    }
+
+    .verified-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
       text-transform: uppercase;
-    }
-
-    .status-pending {
-      background: #f1f5f9;
-      color: #64748b;
-    }
-
-    .status-verified {
       background: rgba(0, 214, 143, 0.16);
       color: #00875a;
       border: 1px solid rgba(0, 214, 143, 0.3);
     }
 
-    .status-mismatch {
-      background: rgba(255, 59, 105, 0.15);
-      color: var(--dp-coral);
-      border: 1px solid rgba(255, 59, 105, 0.3);
+    .empty-state {
+      padding: 32px 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
     }
 
-    /* SCANNER MODAL POPUP */
+    .btn-delete-row {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 3px;
+      color: var(--dp-coral);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .btn-delete-row:hover {
+      background: #ffe4e6;
+    }
+
+    /* LIVE CAMERA MODAL */
     .scanner-modal {
       display: none;
       position: fixed;
@@ -461,46 +474,37 @@
       cursor: pointer;
       color: var(--text-muted);
       line-height: 1;
-      padding: 0 4px;
     }
 
-    .scanner-target-banner {
+    .scanner-info-strip {
       background: var(--dp-light-silver);
       padding: 8px 16px;
       font-size: 11.5px;
       color: var(--dp-navy);
       border-bottom: 1px solid var(--dp-border);
+      display: flex;
+      justify-content: space-between;
     }
 
     .scanner-viewport {
       width: 100%;
-      min-height: 280px;
+      min-height: 290px;
       background: #000000;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     #qr-reader {
       width: 100%;
-      background: transparent;
       border: none !important;
-    }
-
-    #qr-reader__scan_region video {
-      object-fit: cover;
-      border-radius: 6px;
     }
 
     .camera-error-banner {
       display: none;
-      padding: 16px;
+      padding: 14px;
       background: #fff1f2;
       color: var(--dp-coral);
-      font-size: 12px;
+      font-size: 11.5px;
       text-align: center;
-      border-top: 1px solid #ffe4e6;
       line-height: 1.4;
     }
 
@@ -516,7 +520,7 @@
       padding-top: 10px;
     }
 
-    @media (max-width: 650px) {
+    @media (max-width: 768px) {
       .kpi-grid {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -531,7 +535,11 @@
       .select-control {
         min-width: 100%;
       }
-      .btn-new-patrol {
+      .toolbar-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      .btn-main-scan, .btn-new-patrol {
         width: 100%;
         justify-content: center;
       }
@@ -543,7 +551,7 @@
 
   <div class="container">
 
-    <!-- HEADER WITH DP WORLD LOGO -->
+    <!-- HEADER -->
     <div class="header-bar">
       <div class="brand-section">
         <a href="https://commons.wikimedia.org/wiki/File:DP_World_2021_logo.svg" target="_blank" title="DP World Logo">
@@ -551,17 +559,19 @@
         </a>
         <div class="header-divider"></div>
         <div class="brand-title">
-          <h1>GUARD TOUR PATROL SYSTEM</h1>
-          <p>Live QR Verification & Point Compare</p>
+          <h1>GUARD TOUR PATROL DISPATCH</h1>
+          <p>Real-Time GPS Checkpoint Logger</p>
         </div>
       </div>
 
-      <div class="header-badge" id="patrolStatusBadge">
-        🛡️ <span id="patrolStatusText">Patrol Standby</span>
+      <div class="header-badges">
+        <div class="badge" id="patrolStatusBadge">
+          🛡️ <span id="patrolStatusText">Active Patrol</span>
+        </div>
       </div>
     </div>
 
-    <!-- WORKFLOW TOOLBAR -->
+    <!-- PATROL CONTROLS TOOLBAR -->
     <div class="patrol-toolbar">
       <div class="toolbar-inputs">
         <div class="form-group">
@@ -581,385 +591,262 @@
         <div class="form-group">
           <label for="directionSelect">Patrol Direction (Route)</label>
           <select id="directionSelect" class="select-control" onchange="onDirectionChange()">
-            <option value="north_perimeter">North Perimeter & Empty Yard Route</option>
-            <option value="warehouse_complex">Warehouse Complex Route (WH-A to WH-C)</option>
-            <option value="full_perimeter">Full Facility Perimeter & Sub-Stations</option>
+            <option value="North Perimeter & Empty Yard Route" selected>North Perimeter & Empty Yard Route</option>
+            <option value="Warehouse Complex Route (WH-A to WH-C)">Warehouse Complex Route (WH-A to WH-C)</option>
+            <option value="Full Facility Perimeter & Sub-Stations">Full Facility Perimeter & Sub-Stations</option>
+            <option value="South Fence & Agricultural Yard">South Fence & Agricultural Yard</option>
           </select>
         </div>
       </div>
 
-      <button class="btn-new-patrol" onclick="onNewPatrolClick()">
-        🔄 New Patrol (Reset)
-      </button>
+      <div class="toolbar-actions">
+        <!-- SINGLE SCAN BUTTON -->
+        <button class="btn-main-scan" onclick="openScannerModal()">
+          📷 Scan Checkpoint QR
+        </button>
+
+        <!-- RESET TOUR BUTTON -->
+        <button class="btn-new-patrol" onclick="onNewPatrolClick()">
+          🔄 New Patrol
+        </button>
+      </div>
     </div>
 
     <!-- KPI METRICS -->
     <div class="kpi-grid">
       <div class="kpi-card kpi-navy">
-        <div class="kpi-title">Total Checkpoints</div>
-        <div class="kpi-val" id="kpiTotal">0</div>
-        <div class="kpi-sub">On active route</div>
+        <div class="kpi-title">Scans Logged</div>
+        <div class="kpi-val" id="kpiTotalScans">0</div>
+        <div class="kpi-sub">Checkpoints recorded</div>
       </div>
       <div class="kpi-card kpi-mint">
-        <div class="kpi-title">Verified Points</div>
-        <div class="kpi-val" id="kpiVerified">0</div>
-        <div class="kpi-sub" id="kpiPercent">0% Completed</div>
-      </div>
-      <div class="kpi-card kpi-coral">
-        <div class="kpi-title">Point Mismatches</div>
-        <div class="kpi-val" id="kpiMismatch">0</div>
-        <div class="kpi-sub">Incorrect QR tags</div>
+        <div class="kpi-title">Latest Checkpoint</div>
+        <div class="kpi-val" id="kpiLatestPoint">--</div>
+        <div class="kpi-sub" id="kpiLatestCoords">No GPS yet</div>
       </div>
       <div class="kpi-card kpi-purple">
-        <div class="kpi-title">Remaining</div>
-        <div class="kpi-val" id="kpiRemaining">0</div>
-        <div class="kpi-sub">Awaiting scan</div>
+        <div class="kpi-title">Last Scan Time</div>
+        <div class="kpi-val" id="kpiLatestTime">--:--:--</div>
+        <div class="kpi-sub" id="kpiElapsed">Standby</div>
+      </div>
+      <div class="kpi-card kpi-coral">
+        <div class="kpi-title">Active Duty</div>
+        <div class="kpi-val" id="kpiOfficer">Unassigned</div>
+        <div class="kpi-sub" id="kpiRouteSub">Select officer</div>
       </div>
     </div>
 
-    <!-- PROGRESS BAR -->
-    <div class="progress-bar-container">
-      <div class="progress-bar-fill" id="progressBar"></div>
-    </div>
-
-    <!-- CHECKPOINT RECORDS TABLE -->
+    <!-- DYNAMIC CHECKPOINT LOG TABLE -->
     <div class="section-card">
       <div class="section-header">
-        <h3 id="tableTitle">Checkpoints</h3>
-        <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="currentOfficerDisplay">No Officer Assigned</span>
+        <h3>Checkpoint Verification Log</h3>
+        <span style="font-size:11px; font-weight:700; color:var(--text-muted);" id="tableSubtitle">0 Checkpoints Scanned</span>
       </div>
 
-      <table id="checkpointsTable">
+      <table id="scansTable">
         <thead>
           <tr>
             <th style="width: 35px; text-align: center;">#</th>
-            <th>Expected Checkpoint Position</th>
-            <th style="width: 140px; text-align: center;">Action</th>
-            <th style="width: 260px;">Point Compare Result</th>
+            <th style="width: 85px; text-align: center;">Time</th>
+            <th>Location / Checkpoint</th>
+            <th style="width: 260px;">GPS Coordinates (Lat, Lng)</th>
+            <th style="width: 140px;">Officer</th>
+            <th style="width: 90px; text-align: center;">Status</th>
+            <th style="width: 35px; text-align: center;"></th>
           </tr>
         </thead>
-        <tbody id="checkpointsBody">
-          <!-- Dynamically populated -->
+        <tbody id="scansTableBody">
+          <!-- Dynamically appended records appear here -->
         </tbody>
       </table>
+
+      <!-- EMPTY STATE WHEN NO SCANS HAVE OCCURRED -->
+      <div class="empty-state" id="emptyStateNotice">
+        No checkpoints scanned yet. Select an officer and click <strong>"📷 Scan Checkpoint QR"</strong> to record on-site points.
+      </div>
     </div>
 
     <!-- FOOTER -->
     <div class="footer-bar">
       <div>DP World Logistics Park &bull; Security Operations Division</div>
-      <div>Direct Video Frame QR Inspection</div>
+      <div>Automatic Geolocation Metadata Parser &bull; Single-Trigger Architecture</div>
     </div>
 
   </div>
 
-  <!-- GENUINE LIVE CAMERA MODAL -->
+  <!-- LIVE CAMERA MODAL -->
   <div class="scanner-modal" id="scannerModal">
     <div class="scanner-box">
       <div class="scanner-header">
-        <h4 id="modalPointTitle">Scan Checkpoint QR Code</h4>
+        <h4>Scan Location QR Tag</h4>
         <button class="btn-close-scanner" onclick="closeScannerModal()">&times;</button>
       </div>
 
-      <div class="scanner-target-banner" id="modalTargetBanner">
-        Target Position: <strong>Loading...</strong>
+      <div class="scanner-info-strip">
+        <span>Officer: <strong id="modalOfficer">--</strong></span>
+        <span>Route: <strong id="modalRoute">--</strong></span>
       </div>
 
-      <!-- HARDWARE CAMERA FEED VIEWPORT -->
+      <!-- CAMERA STREAM -->
       <div class="scanner-viewport">
         <div id="qr-reader"></div>
       </div>
 
-      <!-- CAMERA HARDWARE/PERMISSION ERROR BANNER -->
       <div class="camera-error-banner" id="cameraErrorBanner">
-        ⚠️ <strong>Camera Error:</strong><br>
-        <span id="cameraErrorText">Unable to access device camera. Please allow camera permissions in your browser. (Note: Browsers require HTTPS or localhost to enable video cameras).</span>
+        ⚠️ <strong>Camera Access Error:</strong><br>
+        Please allow camera permissions in your browser. (Note: Mobile browsers require an HTTPS or localhost connection to access camera hardware).
       </div>
     </div>
   </div>
 
-  <!-- AUDIO/HAPTIC CONFIRMATION ENGINE -->
+  <!-- AUDIO/HAPTIC NOTIFICATION -->
   <script>
-    function triggerFeedback(isMatch) {
-      // 1. Audio tone feedback
+    function triggerSuccessFeedback() {
+      // Audio Chime
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        if (isMatch) {
-          osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch (A5)
-          gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.15);
-        } else {
-          osc.frequency.setValueAtTime(260, audioCtx.currentTime); // Low warning buzz
-          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.3);
-        }
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch (A5)
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
       } catch (e) {}
 
-      // 2. Mobile vibration feedback
+      // Phone Vibration
       if (navigator.vibrate) {
-        if (isMatch) {
-          navigator.vibrate(100);
-        } else {
-          navigator.vibrate([100, 80, 100]);
-        }
+        navigator.vibrate([100, 50, 100]);
       }
     }
   </script>
 
-  <!-- BUSINESS LOGIC & CAMERA ENGINE -->
+  <!-- BUSINESS LOGIC, SCANNER & GPS PARSER -->
   <script>
-    // PREDEFINED PATROL ROUTES & CHECKPOINT LOCATIONS
-    const PATROL_ROUTES = {
-      north_perimeter: {
-        name: "North Perimeter & Empty Yard Route",
-        points: [
-          { id: "CP-MG-01", name: "Main Entry Gate (Post 1)", qr: "DPW-LP-POINT-MG01", desc: "Access control gate & barrier terminal" },
-          { id: "CP-EY-02", name: "Empty Yard (Stack A-North)", qr: "DPW-LP-POINT-EY02", desc: "Reefer container power rack area" },
-          { id: "CP-EY-03", name: "Empty Yard (North Gate Post)", qr: "DPW-LP-POINT-EY03", desc: "North perimeter turnstile gate" },
-          { id: "CP-SS-01", name: "Electrical Sub-Station 01", qr: "DPW-LP-POINT-SS01", desc: "High-voltage switchgear lock inspection" },
-          { id: "CP-PF-04", name: "Perimeter Fence Watchpost 04", qr: "DPW-LP-POINT-PF04", desc: "North-West security lighting tower" }
-        ]
-      },
-      warehouse_complex: {
-        name: "Warehouse Complex Route (WH-A to WH-C)",
-        points: [
-          { id: "CP-WHA-01", name: "Warehouse A (Main Loading Bay)", qr: "DPW-LP-POINT-WHA01", desc: "Hydraulic loading docks 01 to 06" },
-          { id: "CP-WHA-02", name: "Warehouse A (Emergency Fire Exit)", qr: "DPW-LP-POINT-WHA02", desc: "Push-bar emergency egress doors" },
-          { id: "CP-WHB-01", name: "Warehouse B (Cross-Dock Entrance)", qr: "DPW-LP-POINT-WHB01", desc: "Cargo staging and receiving terminal" },
-          { id: "CP-WHC-01", name: "Warehouse C (Customs Bonded Area)", qr: "DPW-LP-POINT-WHC01", desc: "Customs bonded security padlock point" },
-          { id: "CP-ADM-01", name: "Logistics Admin Building Egress", qr: "DPW-LP-POINT-ADM01", desc: "Night entry locks & security key vault" }
-        ]
-      },
-      full_perimeter: {
-        name: "Full Facility Perimeter & Sub-Stations",
-        points: [
-          { id: "CP-MG-01", name: "Main Entry Security Gate", qr: "DPW-LP-POINT-MG01", desc: "Main entry control terminal" },
-          { id: "CP-EY-02", name: "Empty Container Yard Guard Point", qr: "DPW-LP-POINT-EY02", desc: "Yard lighting and container integrity" },
-          { id: "CP-SS-01", name: "Sub-Station 01 Perimeter", qr: "DPW-LP-POINT-SS01", desc: "Power relay perimeter barrier" },
-          { id: "CP-SS-02", name: "Sub-Station 02 (South Side)", qr: "DPW-LP-POINT-SS02", desc: "Backup generator diesel fuel bay" },
-          { id: "CP-HY-01", name: "Hay Yard Perimeter Fence", qr: "DPW-LP-POINT-HY01", desc: "South-East agricultural storage fence" },
-          { id: "CP-WHA-01", name: "Warehouse A Main Gate", qr: "DPW-LP-POINT-WHA01", desc: "Final tour review checkpoint" }
-        ]
-      }
-    };
-
-    let currentRouteKey = "north_perimeter";
     let activeOfficer = "";
-    let checkpointStatuses = {}; 
-
+    let activeDirection = "North Perimeter & Empty Yard Route";
+    let scanRecords = [];
     let html5QrCode = null;
-    let currentScanningPointIndex = null;
 
     window.addEventListener("DOMContentLoaded", () => {
-      loadSavedPatrolState();
-      renderCheckpointsTable();
+      loadState();
+      updateUI();
     });
 
     function onOfficerChange() {
-      const select = document.getElementById("officerSelect");
-      activeOfficer = select.value;
-      document.getElementById("currentOfficerDisplay").innerText = activeOfficer ? `Officer: ${activeOfficer}` : "No Officer Assigned";
-      updatePatrolHeaderStatus();
-      savePatrolState();
+      activeOfficer = document.getElementById("officerSelect").value;
+      updateUI();
+      saveState();
     }
 
     function onDirectionChange() {
-      const select = document.getElementById("directionSelect");
-      currentRouteKey = select.value;
-      checkpointStatuses = {}; // Fresh sequence for new route
-      renderCheckpointsTable();
-      savePatrolState();
+      activeDirection = document.getElementById("directionSelect").value;
+      updateUI();
+      saveState();
     }
 
     function onNewPatrolClick() {
-      if (confirm("Start a New Patrol tour? All scanned checkpoints will be reset to pending.")) {
-        checkpointStatuses = {};
-        renderCheckpointsTable();
-        savePatrolState();
+      if (confirm("Start a New Patrol tour? This will clear all recorded scans for this session.")) {
+        scanRecords = [];
+        updateUI();
+        saveState();
       }
     }
 
-    // RENDER TABLE WITH SCAN BUTTON STATES & POINT COMPARE
-    function renderCheckpointsTable() {
-      const route = PATROL_ROUTES[currentRouteKey];
-      document.getElementById("tableTitle").innerText = `Checkpoints: ${route.name}`;
+    // ROBUST GEOLOCATION & NAME PARSER
+    // Parses JSON: {"name": "Empty Yard Gate", "lat": 29.9754, "lng": 32.5542}
+    // Parses Pipe/Comma: "Empty Yard Gate | 29.9754 | 32.5542"
+    // Parses geo URIs: "geo:29.9754,32.5542?q=Empty+Yard"
+    function parseQRCode(rawText) {
+      let locationName = "Site Point";
+      let latitude = null;
+      let longitude = null;
 
-      const tbody = document.getElementById("checkpointsBody");
-      tbody.innerHTML = "";
+      const trimmed = (rawText || "").trim();
 
-      let verifiedCount = 0;
-      let mismatchCount = 0;
-
-      route.points.forEach((point, index) => {
-        const state = checkpointStatuses[point.id] || { status: "pending", scannedValue: "", timestamp: "" };
-
-        if (state.status === "verified") verifiedCount++;
-        if (state.status === "mismatch") mismatchCount++;
-
-        const tr = document.createElement("tr");
-        if (state.status === "verified") tr.className = "row-verified";
-        if (state.status === "mismatch") tr.className = "row-mismatch";
-
-        // 1. Index
-        const tdSeq = document.createElement("td");
-        tdSeq.style.textAlign = "center";
-        tdSeq.innerHTML = `<span class="point-seq">${index + 1}</span>`;
-
-        // 2. Expected Point Position & Details
-        const tdInfo = document.createElement("td");
-        tdInfo.innerHTML = `
-          <div class="point-info">
-            <span class="point-name">${point.name}</span>
-            <span class="point-code">ID: ${point.id} &bull; Expected QR: <code>${point.qr}</code></span>
-            <span style="font-size:10px; color:var(--text-muted);">${point.desc}</span>
-          </div>
-        `;
-
-        // 3. Action Button (Disabled once correctly scanned)
-        const tdAction = document.createElement("td");
-        tdAction.style.textAlign = "center";
-
-        if (state.status === "verified") {
-          // DISABLED WHEN SCAN IS DONE CORRECTLY
-          tdAction.innerHTML = `
-            <button class="btn-scan" disabled title="Checkpoint verified and locked">
-              ✓ Verified
-            </button>
-          `;
-        } else if (state.status === "mismatch") {
-          // ALLOW RETRY IF GUARD SCANNED WRONG TAG
-          tdAction.innerHTML = `
-            <button class="btn-scan btn-scan-retry" onclick="openScannerModal(${index})" title="Wrong location scanned. Click to re-scan">
-              ⚠️ Re-Scan QR
-            </button>
-          `;
-        } else {
-          // READY TO SCAN
-          tdAction.innerHTML = `
-            <button class="btn-scan" onclick="openScannerModal(${index})">
-              📷 Scan QR
-            </button>
-          `;
+      // 1. Try parsing JSON format
+      try {
+        const json = JSON.parse(trimmed);
+        locationName = json.name || json.location || json.point || json.title || json.id || locationName;
+        latitude = json.lat !== undefined ? json.lat : (json.latitude !== undefined ? json.latitude : null);
+        longitude = json.lng !== undefined ? json.lng : (json.longitude !== undefined ? json.longitude : (json.lon !== undefined ? json.lon : null));
+      } catch (e) {
+        // 2. Check for geo: URI
+        if (trimmed.startsWith("geo:")) {
+          const body = trimmed.replace("geo:", "");
+          const coords = body.split("?")[0].split(",");
+          latitude = parseFloat(coords[0]);
+          longitude = parseFloat(coords[1]);
+          const queryMatch = trimmed.match(/[?&]q=([^&]+)/);
+          if (queryMatch) {
+            locationName = decodeURIComponent(queryMatch[1].replace(/\+/g, " "));
+          }
         }
-
-        // 4. Point Compare Result
-        const tdCompare = document.createElement("td");
-        if (state.status === "verified") {
-          tdCompare.innerHTML = `
-            <div>
-              <span class="compare-status status-verified">✅ Matched & Verified</span>
-              <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">
-                Scanned: <strong>${state.scannedValue}</strong><br>
-                Time: <strong>${state.timestamp}</strong> &bull; By: <strong>${state.officer || "Officer"}</strong>
-              </div>
-            </div>
-          `;
-        } else if (state.status === "mismatch") {
-          tdCompare.innerHTML = `
-            <div>
-              <span class="compare-status status-mismatch">❌ Position Mismatch</span>
-              <div style="font-size: 10px; color: var(--dp-coral); margin-top: 3px;">
-                Expected: <strong>${point.qr}</strong><br>
-                Scanned: <strong>${state.scannedValue}</strong> (${state.timestamp})
-              </div>
-            </div>
-          `;
-        } else {
-          tdCompare.innerHTML = `
-            <span class="compare-status status-pending">⏳ Awaiting Scan</span>
-          `;
+        // 3. Check for Pipe or Comma separated values: "Location Name | Lat | Lng"
+        else if (trimmed.includes("|") || trimmed.includes(",")) {
+          const parts = trimmed.split(/[|,]/).map(s => s.trim());
+          if (parts.length >= 3) {
+            const pLat = parseFloat(parts[parts.length - 2]);
+            const pLng = parseFloat(parts[parts.length - 1]);
+            if (!isNaN(pLat) && !isNaN(pLng) && Math.abs(pLat) <= 90 && Math.abs(pLng) <= 180) {
+              latitude = pLat;
+              longitude = pLng;
+              locationName = parts.slice(0, parts.length - 2).join(" ");
+            }
+          }
         }
-
-        tr.appendChild(tdSeq);
-        tr.appendChild(tdInfo);
-        tr.appendChild(tdAction);
-        tr.appendChild(tdCompare);
-        tbody.appendChild(tr);
-      });
-
-      // Update KPI Statistics
-      const total = route.points.length;
-      const remaining = total - verifiedCount;
-      const percent = total > 0 ? Math.round((verifiedCount / total) * 100) : 0;
-
-      document.getElementById("kpiTotal").innerText = total;
-      document.getElementById("kpiVerified").innerText = verifiedCount;
-      document.getElementById("kpiMismatch").innerText = mismatchCount;
-      document.getElementById("kpiRemaining").innerText = remaining;
-      document.getElementById("kpiPercent").innerText = `${percent}% Completed`;
-      document.getElementById("progressBar").style.width = `${percent}%`;
-
-      updatePatrolHeaderStatus();
-    }
-
-    function updatePatrolHeaderStatus() {
-      const route = PATROL_ROUTES[currentRouteKey];
-      const total = route.points.length;
-      let verifiedCount = 0;
-      route.points.forEach(p => {
-        if (checkpointStatuses[p.id] && checkpointStatuses[p.id].status === "verified") {
-          verifiedCount++;
-        }
-      });
-
-      const badge = document.getElementById("patrolStatusBadge");
-      const text = document.getElementById("patrolStatusText");
-
-      if (verifiedCount === total && total > 0) {
-        badge.style.background = "#ecfdf5";
-        badge.style.color = "#065f46";
-        badge.style.borderColor = "#a7f3d0";
-        text.innerText = "Tour Completed";
-      } else if (verifiedCount > 0) {
-        badge.style.background = "#eff6ff";
-        badge.style.color = "#1e40af";
-        badge.style.borderColor = "#bfdbfe";
-        text.innerText = `Tour in Progress (${verifiedCount}/${total})`;
-      } else {
-        badge.style.background = "#f1f5f9";
-        badge.style.color = "#475569";
-        badge.style.borderColor = "#cbd5e1";
-        text.innerText = activeOfficer ? `Patrol Ready: ${activeOfficer}` : "Patrol Standby";
       }
+
+      // 4. Regex fallback: Search for two floating point numbers (lat, lng pattern)
+      if (latitude === null || longitude === null) {
+        const coordRegex = /([-+]?\d{1,2}\.\d+)[,\s|]+([-+]?\d{1,3}\.\d+)/;
+        const match = trimmed.match(coordRegex);
+        if (match) {
+          latitude = parseFloat(match[1]);
+          longitude = parseFloat(match[2]);
+          if (locationName === "Site Point") {
+            const strippedName = trimmed.replace(match[0], "").replace(/^[|,:\s-]+|[|,:\s-]+$/g, "");
+            if (strippedName) locationName = strippedName;
+          }
+        } else {
+          locationName = trimmed;
+        }
+      }
+
+      return {
+        name: locationName || "Checkpoint",
+        lat: latitude,
+        lng: longitude,
+        raw: trimmed
+      };
     }
 
     // ==========================================
-    // REAL HARDWARE CAMERA QR SCANNER
+    // SINGLE CAMERA SCANNER CONTROLLER
     // ==========================================
-    function openScannerModal(pointIndex) {
+    function openScannerModal() {
       if (!activeOfficer) {
-        alert("Please select the Patrol Officer from the top menu before scanning checkpoints.");
+        alert("Please select the Patrol Officer from the top menu before scanning.");
         document.getElementById("officerSelect").focus();
         return;
       }
 
-      currentScanningPointIndex = pointIndex;
-      const point = PATROL_ROUTES[currentRouteKey].points[pointIndex];
-
-      document.getElementById("modalPointTitle").innerText = `Scanning Checkpoint #${pointIndex + 1}`;
-      document.getElementById("modalTargetBanner").innerHTML = `
-        Target Position: <strong>${point.name}</strong><br>
-        Expected QR Tag: <code>${point.qr}</code>
-      `;
+      document.getElementById("modalOfficer").innerText = activeOfficer;
+      document.getElementById("modalRoute").innerText = activeDirection;
       document.getElementById("cameraErrorBanner").style.display = "none";
       document.getElementById("scannerModal").style.display = "flex";
 
-      // Launch actual camera
-      startLiveCamera();
+      startCamera();
     }
 
     function closeScannerModal() {
-      stopLiveCamera().then(() => {
+      stopCamera().then(() => {
         document.getElementById("scannerModal").style.display = "none";
       });
     }
 
-    function startLiveCamera() {
+    function startCamera() {
       const readerEl = document.getElementById("qr-reader");
       readerEl.innerHTML = "";
 
@@ -973,97 +860,177 @@
         aspectRatio: 1.0
       };
 
-      // 1. Try back/environment camera first (mobile standard)
-      html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        onCodeScanned
-      ).catch(err1 => {
-        console.warn("Rear camera start failed, attempting default user camera:", err1);
-        // 2. Fallback to any default camera available (laptops/webcams)
-        html5QrCode.start(
-          { facingMode: "user" },
-          config,
-          onCodeScanned
-        ).catch(err2 => {
-          console.error("Camera access failed completely:", err2);
-          document.getElementById("cameraErrorBanner").style.display = "block";
+      // Prefer rear/environment camera on phones
+      html5QrCode.start({ facingMode: "environment" }, config, onQRCodeDetected)
+        .catch(err1 => {
+          console.warn("Rear camera failed, trying default user camera:", err1);
+          html5QrCode.start({ facingMode: "user" }, config, onQRCodeDetected)
+            .catch(err2 => {
+              console.error("Camera access failed:", err2);
+              document.getElementById("cameraErrorBanner").style.display = "block";
+            });
         });
-      });
     }
 
-    function stopLiveCamera() {
+    function stopCamera() {
       if (html5QrCode && html5QrCode.isScanning) {
         return html5QrCode.stop().then(() => {
           html5QrCode.clear();
         }).catch(err => {
-          console.error("Error shutting down camera:", err);
+          console.error("Error stopping camera:", err);
         });
       }
       return Promise.resolve();
     }
 
-    // ON SUCCESSFUL LIVE CAMERA READ
-    function onCodeScanned(decodedText) {
-      handlePointComparison(decodedText);
-    }
-
-    // POINT COMPARE VALIDATION
-    function handlePointComparison(scannedText) {
-      const route = PATROL_ROUTES[currentRouteKey];
-      const expectedPoint = route.points[currentScanningPointIndex];
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      // Compare scanned QR code with expected point value
-      const isMatched = (scannedText.trim() === expectedPoint.qr.trim());
-
-      checkpointStatuses[expectedPoint.id] = {
-        status: isMatched ? "verified" : "mismatch",
-        scannedValue: scannedText,
-        timestamp: timeStr,
-        officer: activeOfficer
-      };
-
-      // Trigger tone & vibration feedback
-      triggerFeedback(isMatched);
-
-      // Stop camera and shut down modal
-      stopLiveCamera().then(() => {
+    // WHEN QR CODE IS DETECTED
+    function onQRCodeDetected(decodedText) {
+      stopCamera().then(() => {
         document.getElementById("scannerModal").style.display = "none";
-        renderCheckpointsTable();
-        savePatrolState();
+        processNewScan(decodedText);
       });
     }
 
-    // LOCAL STORAGE PERSISTENCE
-    function savePatrolState() {
+    // ADD NEW RECORD & UPDATE TABLE ACCORDINGLY
+    function processNewScan(qrText) {
+      const parsed = parseQRCode(qrText);
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const newRecord = {
+        id: Date.now(),
+        time: timeStr,
+        name: parsed.name,
+        lat: parsed.lat,
+        lng: parsed.lng,
+        raw: parsed.raw,
+        officer: activeOfficer,
+        route: activeDirection
+      };
+
+      // Add to records array
+      scanRecords.push(newRecord);
+
+      triggerSuccessFeedback();
+      updateUI();
+      saveState();
+    }
+
+    function deleteScanRecord(recordId) {
+      scanRecords = scanRecords.filter(r => r.id !== recordId);
+      updateUI();
+      saveState();
+    }
+
+    // UPDATE UI (TABLE, KPIS, EMPTY STATE)
+    function updateUI() {
+      // 1. Update Officer & Route Displays
+      document.getElementById("kpiOfficer").innerText = activeOfficer || "Unassigned";
+      document.getElementById("kpiRouteSub").innerText = activeDirection;
+
+      // 2. Update KPI Stats
+      const total = scanRecords.length;
+      document.getElementById("kpiTotalScans").innerText = total;
+      document.getElementById("tableSubtitle").innerText = `${total} Checkpoint${total === 1 ? '' : 's'} Scanned`;
+
+      if (total > 0) {
+        const latest = scanRecords[total - 1];
+        document.getElementById("kpiLatestPoint").innerText = latest.name;
+        document.getElementById("kpiLatestTime").innerText = latest.time;
+        if (latest.lat !== null && latest.lng !== null) {
+          document.getElementById("kpiLatestCoords").innerText = `${latest.lat.toFixed(4)}, ${latest.lng.toFixed(4)}`;
+        } else {
+          document.getElementById("kpiLatestCoords").innerText = "No GPS encoded";
+        }
+        document.getElementById("kpiElapsed").innerText = `Last scanned by ${latest.officer}`;
+      } else {
+        document.getElementById("kpiLatestPoint").innerText = "--";
+        document.getElementById("kpiLatestTime").innerText = "--:--:--";
+        document.getElementById("kpiLatestCoords").innerText = "No GPS yet";
+        document.getElementById("kpiElapsed").innerText = "Standby";
+      }
+
+      // 3. Render Table Rows
+      const tbody = document.getElementById("scansTableBody");
+      const emptyNotice = document.getElementById("emptyStateNotice");
+
+      if (total === 0) {
+        tbody.innerHTML = "";
+        emptyNotice.style.display = "block";
+        return;
+      }
+
+      emptyNotice.style.display = "none";
+      tbody.innerHTML = "";
+
+      scanRecords.forEach((item, index) => {
+        const tr = document.createElement("tr");
+
+        // Coordinates column with optional Google Maps link
+        let coordsHTML = "";
+        if (item.lat !== null && item.lng !== null) {
+          coordsHTML = `
+            <div>
+              <span class="coords-tag">🌐 ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}</span>
+              <a href="https://www.google.com/maps?q=${item.lat},${item.lng}" target="_blank" class="map-link">
+                📍 Map
+              </a>
+            </div>
+          `;
+        } else {
+          coordsHTML = `<span style="color:var(--text-muted); font-size:11px;">Not specified in QR</span>`;
+        }
+
+        tr.innerHTML = `
+          <td style="text-align: center;"><span class="point-seq">${index + 1}</span></td>
+          <td style="text-align: center; font-weight: 700; color: var(--dp-navy);">${item.time}</td>
+          <td>
+            <div class="location-cell">
+              <span class="location-name">${item.name}</span>
+              <span class="location-raw">Tag: ${item.raw}</span>
+            </div>
+          </td>
+          <td>${coordsHTML}</td>
+          <td style="font-weight: 600;">${item.officer}</td>
+          <td style="text-align: center;">
+            <span class="verified-pill">✓ Logged</span>
+          </td>
+          <td style="text-align: center;">
+            <button class="btn-delete-row" title="Delete record" onclick="deleteScanRecord(${item.id})">✖</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // PERSISTENCE (LOCAL STORAGE)
+    function saveState() {
       try {
         const payload = {
           officer: activeOfficer,
-          routeKey: currentRouteKey,
-          statuses: checkpointStatuses
+          direction: activeDirection,
+          records: scanRecords
         };
-        localStorage.setItem("dpw_guard_patrol_state", JSON.stringify(payload));
+        localStorage.setItem("dpw_realtime_patrol_log", JSON.stringify(payload));
       } catch (e) {}
     }
 
-    function loadSavedPatrolState() {
+    function loadState() {
       try {
-        const saved = localStorage.getItem("dpw_guard_patrol_state");
+        const saved = localStorage.getItem("dpw_realtime_patrol_log");
         if (saved) {
           const data = JSON.parse(saved);
           if (data.officer) {
             activeOfficer = data.officer;
             document.getElementById("officerSelect").value = activeOfficer;
-            document.getElementById("currentOfficerDisplay").innerText = `Officer: ${activeOfficer}`;
           }
-          if (data.routeKey && PATROL_ROUTES[data.routeKey]) {
-            currentRouteKey = data.routeKey;
-            document.getElementById("directionSelect").value = currentRouteKey;
+          if (data.direction) {
+            activeDirection = data.direction;
+            document.getElementById("directionSelect").value = activeDirection;
           }
-          if (data.statuses) {
-            checkpointStatuses = data.statuses;
+          if (Array.isArray(data.records)) {
+            scanRecords = data.records;
           }
         }
       } catch (e) {}
