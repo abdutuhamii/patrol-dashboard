@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Ensures external Wikimedia assets are not blocked by referrer checks -->
+    <!-- Ensures external Wikimedia assets load without referrer blocks -->
     <meta name="referrer" content="no-referrer">
-    <title>DP World - منظومة الدوريات</title>
+    <title>DP World - دوريات الموقع</title>
     <!-- In-browser QR code scanner engine -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
@@ -23,42 +23,39 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Arabic", Tahoma, sans-serif;
             background-color: var(--dp-bg);
             color: var(--dp-navy);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 8px;
-            overflow: hidden; /* Prevents mobile screen bounce */
-        }
-        .dashboard {
-            width: 100%;
-            max-width: 440px;
-            background: #ffffff;
-            padding: 14px 18px;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px -5px rgba(11, 21, 40, 0.08);
-            border: 1px solid var(--dp-border);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            padding: 12px;
         }
 
-        /* Header & Official Wikipedia Logo */
+        /* Dashboard Card - Compact and Proportionate */
+        .dashboard {
+            width: 100%;
+            max-width: 425px; /* Sized a little smaller than before */
+            background: #ffffff;
+            padding: 18px 16px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px -4px rgba(11, 21, 40, 0.08);
+            border: 1px solid var(--dp-border);
+        }
+
+        /* Header & DP World Official Logo */
         .header {
             text-align: center;
-            margin-bottom: 8px;
-            position: relative;
+            margin-bottom: 12px;
         }
         .logo {
-            height: 38px;
-            max-width: 180px;
+            height: 44px;
+            max-width: 200px;
             object-fit: contain;
-            margin: 0 auto 4px auto;
+            margin: 0 auto 6px auto;
             display: block;
         }
         .app-title {
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 15px;
+            font-weight: 800;
             color: var(--dp-navy);
             letter-spacing: -0.2px;
         }
@@ -67,21 +64,60 @@
             width: 100%;
             background: linear-gradient(90deg, var(--dp-berry) 0%, var(--dp-green) 100%);
             border-radius: 2px;
-            margin: 6px 0 10px 0;
+            margin: 8px 0 12px 0;
         }
 
-        /* Compact Form Controls */
-        .form-group { margin-bottom: 8px; }
+        /* Stacked Step Cards (Matching Screenshot) */
+        .step-card {
+            background: #f8fafc;
+            border: 1.5px solid var(--dp-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .card-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: var(--dp-navy);
+        }
+        .card-subtext {
+            font-size: 11.5px;
+            color: var(--dp-gray);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .badge-pending { background: #fee2e2; color: var(--danger); }
+        .badge-ok { background: #d1fae5; color: var(--dp-green); }
+        .badge-active { background: #fce7f3; color: var(--dp-berry); }
+
+        /* Form Controls */
+        .form-group { margin-bottom: 10px; }
         label {
             display: block;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 700;
             color: var(--dp-navy);
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         input, select, textarea {
             width: 100%;
-            padding: 8px 10px;
+            padding: 9px 11px;
             border: 1.5px solid var(--dp-border);
             border-radius: 8px;
             font-size: 13.5px;
@@ -95,64 +131,32 @@
             outline: none;
         }
 
-        /* Two-Factor Verification Row (Compact) */
-        .verification-panel {
-            background: #f1f5f9;
-            border: 1px solid var(--dp-border);
-            border-radius: 10px;
-            padding: 8px 10px;
-            margin-bottom: 8px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .v-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .badge {
-            display: inline-block;
-            padding: 3px 6px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: 700;
-            margin-top: 4px;
-            width: 100%;
-            text-align: center;
-        }
-        .badge-pending { background: #fee2e2; color: var(--danger); }
-        .badge-ok { background: #d1fae5; color: var(--dp-green); }
-        .badge-active { background: #fce7f3; color: var(--dp-berry); }
-
         /* Action Buttons */
         .btn {
             background: var(--dp-navy);
             color: white;
             border: none;
-            padding: 7px 10px;
-            border-radius: 6px;
+            padding: 9px 12px;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 13px;
             font-family: inherit;
             transition: all 0.2s;
         }
         .btn:active { transform: scale(0.98); }
-        .btn-open-form {
+        .btn-submit {
             background: linear-gradient(90deg, var(--dp-berry) 0%, #9d174d 100%);
-            padding: 10px;
+            padding: 11px;
             font-size: 14px;
-            border-radius: 8px;
-            margin-top: 6px;
+            border-radius: 9px;
+            margin-top: 4px;
         }
-        .btn-open-form.active-ready {
+        .btn-submit.active-ready {
             background: linear-gradient(90deg, var(--dp-green) 0%, #047857 100%);
         }
-        .btn-open-form:disabled {
+        .btn-submit:disabled {
             background: #cbd5e1;
             color: #64748b;
             cursor: not-allowed;
@@ -161,16 +165,17 @@
 
         /* Message Banner */
         .msg {
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
             text-align: center;
-            min-height: 16px;
-            margin-top: 4px;
+            min-height: 18px;
+            margin-top: 6px;
+            line-height: 1.4;
         }
         .danger-text { color: var(--danger); }
         .success-text { color: var(--dp-green); }
 
-        /* Modals (Camera & Form Questionnaire) */
+        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -184,11 +189,11 @@
         .modal-box {
             background: #fff;
             width: 100%;
-            max-width: 420px;
+            max-width: 400px;
             border-radius: 14px;
-            padding: 16px;
+            padding: 18px 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            max-height: 90vh;
+            max-height: 88vh;
             overflow-y: auto;
         }
         .modal-title {
@@ -202,8 +207,8 @@
         }
         .modal-camera video {
             width: 100%;
-            max-width: 280px;
-            aspect-ratio: 1 / 1;
+            max-width: 270px;
+            aspect-ratio: 1/1;
             border-radius: 12px;
             object-fit: cover;
             border: 2px solid var(--dp-green);
@@ -217,9 +222,10 @@
             padding: 8px;
             border-radius: 8px;
             width: 100%;
-            margin-top: 6px;
+            margin-top: 8px;
             cursor: pointer;
             font-weight: 700;
+            font-size: 13px;
             font-family: inherit;
         }
     </style>
@@ -229,45 +235,54 @@
 <div class="dashboard">
     <!-- Header with Official DP World Logo from Wikipedia -->
     <div class="header">
-        <img class="logo" 
-             src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg" 
+        <img class="logo"
+             src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg"
              alt="DP World Logo"
              referrerpolicy="no-referrer"
              crossorigin="anonymous"
              onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/DP_World_2021_logo.svg/500px-DP_World_2021_logo.svg.png';">
         <div class="brand-line"></div>
-        <div class="app-title">منظومة تأكيد ومتابعة الدوريات</div>
+        <div class="app-title">دوريات الموقع</div>
     </div>
 
     <!-- Searchable Officer Selection Input -->
     <div class="form-group">
-        <label for="officer-input">اسم / كود مسؤول الدورية:</label>
-        <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود (مثال: 30061)..." autocomplete="off" required>
+        <label for="officer-input">اسم مسؤول الدورية / الضابط:</label>
+        <input type="text" id="officer-input" list="officers-datalist" placeholder="أدخل اسمك بالكامل أو الكود هنا..." autocomplete="off" required>
         <datalist id="officers-datalist">
             <!-- Loaded dynamically from Google Sheets 'Officers' tab -->
         </datalist>
     </div>
 
-    <!-- Compact Two-Factor Verification Row -->
-    <div class="verification-panel">
-        <div class="v-item">
-            <button type="button" class="btn" id="start-cam-btn" onclick="openScannerModal()">📷 1. مسح الرمز</button>
+    <!-- Stacked Step 1 Card: QR Scanner (Matching Screenshot) -->
+    <div class="step-card">
+        <div class="card-top">
+            <span class="card-title">1. مسح رمز النقطة (QR Code)</span>
             <span id="code-badge" class="badge badge-pending">بانتظار المسح</span>
         </div>
-        <div class="v-item">
-            <button type="button" class="btn" id="verify-gps-btn" onclick="verifyGPSPresence()" disabled>📍 2. فحص الموقع</button>
+        <p class="card-subtext">وجّه الكاميرا نحو الرمز المعلق على الحائط في موقع النقطة.</p>
+        <button type="button" class="btn" id="start-cam-btn" onclick="openScannerModal()">تشغيل كاميرا المسح</button>
+    </div>
+
+    <!-- Stacked Step 2 Card: GPS Geofence (Matching Screenshot) -->
+    <div class="step-card">
+        <div class="card-top">
+            <span class="card-title">2. التحقق من الموقع الجغرافي (GPS)</span>
             <span id="gps-badge" class="badge badge-pending">مغلق</span>
         </div>
+        <p class="card-subtext" id="target-desc">سيتم فحص الموقع الجغرافي فور مسح رمز النقطة.</p>
+        <button type="button" class="btn" id="verify-gps-btn" onclick="verifyGPSPresence()" disabled>إعادة فحص الموقع الجغرافي</button>
     </div>
 
-    <!-- Checkpoint Display -->
+    <!-- Scanned Checkpoint Status -->
     <div class="form-group">
         <label>النقطة المحددة:</label>
-        <input type="text" id="active-point-display" value="لم يتم مسح أي نقطة بعد" readonly style="background:#f8fafc; font-weight:bold;">
+        <input type="text" id="active-point-display" value="لم يتم مسح أي نقطة بعد" readonly style="background:#f8fafc; font-weight:700;">
     </div>
 
-    <button type="button" class="btn btn-open-form" id="open-questionnaire-btn" onclick="openQuestionModal()" disabled>
-        فتح استمارة الفحص (أكمل التحقق أولاً)
+    <!-- Main Action Button to open the Questionnaire Modal -->
+    <button type="button" class="btn btn-submit" id="open-questionnaire-btn" onclick="openQuestionModal()" disabled>
+        فتح استمارة الفحص (أكمل الخطوات أولاً)
     </button>
 
     <div id="status-feedback" class="msg"></div>
@@ -283,17 +298,17 @@
     </div>
 </div>
 
-<!-- Modal 2: Dynamic Form Questionnaire (fen001) -->
+<!-- Modal 2: Dynamic Form Questionnaire (fen001 -> Fence Sheet) -->
 <div class="modal-overlay" id="form-modal">
     <div class="modal-box">
         <div class="modal-title" id="form-modal-title">استمارة فحص النقطة</div>
 
         <form id="dynamic-patrol-form" onsubmit="submitPatrolAnswers(event)">
             <div id="dynamic-questions-container">
-                <!-- Dynamically generated according to FormCode -->
+                <!-- Dynamically populated according to FormCode -->
             </div>
 
-            <button type="submit" class="btn" style="background:var(--dp-green); padding:10px; font-size:14px; margin-top:10px;" id="submit-answers-btn">
+            <button type="submit" class="btn" style="background:var(--dp-green); padding:11px; font-size:14px; margin-top:10px;" id="submit-answers-btn">
                 ✔ إرسال وحفظ تقرير الفحص
             </button>
             <button type="button" class="close-btn" onclick="closeQuestionModal()">إغلاق مؤقت</button>
@@ -423,9 +438,11 @@
                     codeVerified = true;
 
                     codeBadge.className = "badge badge-ok";
-                    codeBadge.innerText = detectedCheckpoint.name.substring(0, 14);
+                    codeBadge.innerText = "تم التحقق ✔️";
 
                     document.getElementById("active-point-display").value = `${detectedCheckpoint.name} (${detectedCheckpoint.code})`;
+                    document.getElementById("target-desc").innerText = `النقطة: ${detectedCheckpoint.name} (السماحية: ${detectedCheckpoint.tolerance || 10}م)`;
+
                     feedback.className = "msg success-text";
                     feedback.innerText = `تم التعرف على (${detectedCheckpoint.name}). جاري فحص GPS...`;
 
@@ -459,14 +476,14 @@
 
             if (distance <= effectiveTolerance) {
                 badge.className = "badge badge-ok";
-                badge.innerText = `مؤكد (${distance}م)`;
+                badge.innerText = `مؤكد (${distance}م) ✔️`;
 
                 feedback.className = "msg success-text";
-                feedback.innerText = `تم تأكيد التواجد (${distance}م). اضغط على زر فتح الاستمارة أدناه.`;
+                feedback.innerText = `تم تأكيد التواجد في الموقع (${distance}م). يمكنك فتح الاستمارة الآن.`;
 
                 const openBtn = document.getElementById("open-questionnaire-btn");
                 openBtn.disabled = false;
-                openBtn.className = "btn btn-open-form active-ready";
+                openBtn.className = "btn btn-submit active-ready";
                 openBtn.innerText = "📋 فتح استمارة الفحص الآن";
             } else {
                 badge.className = "badge badge-pending";
@@ -535,6 +552,7 @@
         verifiedGPS = { lat: null, lon: null, accuracy: null, distance: null };
 
         document.getElementById("active-point-display").value = "لم يتم مسح أي نقطة بعد";
+        document.getElementById("target-desc").innerText = "سيتم فحص الموقع الجغرافي فور مسح رمز النقطة.";
 
         const codeBadge = document.getElementById("code-badge");
         codeBadge.className = "badge badge-pending";
@@ -548,11 +566,11 @@
 
         const openBtn = document.getElementById("open-questionnaire-btn");
         openBtn.disabled = true;
-        openBtn.className = "btn btn-open-form";
-        openBtn.innerText = "فتح استمارة الفحص (أكمل التحقق أولاً)";
+        openBtn.className = "btn btn-submit";
+        openBtn.innerText = "فتح استمارة الفحص (أكمل الخطوات أولاً)";
     }
 
-    // Submit Questionnaire Answers
+    // Submit Questionnaire Answers to Google Apps Script -> Saved in "Fence" Sheet
     function submitPatrolAnswers(event) {
         event.preventDefault();
         const feedback = document.getElementById("status-feedback");
@@ -567,7 +585,6 @@
         submitBtn.disabled = true;
         submitBtn.innerText = "جاري الحفظ...";
 
-        // Collect structured answers as key-value pairs
         const formEl = event.target;
         const formData = new FormData(formEl);
         let answersObj = {};
@@ -583,7 +600,7 @@
             officer: officer,
             checkpoint: `${detectedCheckpoint.name} (${detectedCheckpoint.code})`,
             formCode: detectedCheckpoint.formCode || "fen001",
-            answers: answersObj,                // Structured dictionary for dedicated columns
+            answers: answersObj,
             answersSummary: answersSummary,
             latitude: verifiedGPS.lat,
             longitude: verifiedGPS.lon,
