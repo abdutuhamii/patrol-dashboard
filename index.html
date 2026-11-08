@@ -30,7 +30,7 @@
             justify-content: center;
             padding: 12px;
         }
-
+        
         .dashboard {
             width: 100%;
             max-width: 425px;
@@ -265,8 +265,8 @@
 
     <!-- Header with Official DP World Logo -->
     <div class="header">
-        <img class="logo"
-             src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg"
+        <img class="logo" 
+             src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg" 
              alt="DP World Logo"
              referrerpolicy="no-referrer"
              crossorigin="anonymous"
@@ -308,7 +308,7 @@
         <input type="text" id="active-point-display" value="لم يتم مسح أي نقطة بعد" readonly style="background:#f8fafc; font-weight:700;">
     </div>
 
-    <!-- Main Action Button to open the Questionnaire Modal -->
+    <!-- Main Action Button to open Questionnaire -->
     <button type="button" class="btn btn-submit" id="open-questionnaire-btn" onclick="openQuestionModal()" disabled>
         فتح استمارة الفحص (أكمل الخطوات أولاً)
     </button>
@@ -358,34 +358,56 @@
     let scanInterval = null;
     let isSyncing = false;
 
-    // Form Schema: fen001
+    // Form Schema: fen001 with Arabic labels and English database values
     const FORM_SCHEMAS = {
         "fen001": {
             title: "استمارة فحص السور المحيط (fen001)",
             questions: [
-                { id: "fence_status", label: "حالة السور:", type: "select", options: ["سليم", "مكسور"] },
-                { id: "light_status", label: "حالة الإضاءة:", type: "select", options: ["سليمة", "غير سليمة"] },
-                { id: "breach_status", label: "هل هناك نقطة اختراق في السور؟", type: "select", options: ["لا", "نعم"] },
+                { 
+                    id: "fence_status", 
+                    label: "حالة السور:", 
+                    type: "select", 
+                    options: [
+                        { label: "سليم", value: "Intact" },
+                        { label: "مكسور", value: "Broken" }
+                    ] 
+                },
+                { 
+                    id: "light_status", 
+                    label: "حالة الإضاءة:", 
+                    type: "select", 
+                    options: [
+                        { label: "سليمة", value: "Working" },
+                        { label: "غير سليمة", value: "Defective" }
+                    ] 
+                },
+                { 
+                    id: "breach_status", 
+                    label: "هل هناك نقطة اختراق في السور؟", 
+                    type: "select", 
+                    options: [
+                        { label: "لا", value: "No" },
+                        { label: "نعم", value: "Yes" }
+                    ] 
+                },
                 { id: "fen_notes", label: "ملاحظات:", type: "textarea" }
             ]
         }
     };
 
     // ----------------------------------------------------
-    // OFFLINE CORE 1: Network Monitoring & Local Cache
+    // OFFLINE & INITIALIZATION
     // ----------------------------------------------------
     window.addEventListener("DOMContentLoaded", () => {
         updateNetworkUI();
         updateQueueUI();
 
-        // Listen to live connectivity transitions
         window.addEventListener("online", () => {
             updateNetworkUI();
-            syncPendingPatrols(); // Auto-sync as soon as signal returns
+            syncPendingPatrols();
         });
         window.addEventListener("offline", updateNetworkUI);
 
-        // Fetch latest Checkpoints & Officers from server or use offline cache
         if (navigator.onLine) {
             fetch(SCRIPT_URL)
                 .then(res => res.json())
@@ -460,6 +482,18 @@
         });
     }
 
+    // Helper to parse Officer Name and Code
+    function parseOfficerInput(rawInput) {
+        let name = rawInput.trim();
+        let code = "";
+        const match = rawInput.match(/^(.*?)(?:\s*\((.*?)\))?$/);
+        if (match) {
+            name = match[1].trim();
+            code = match[2] ? match[2].trim() : "";
+        }
+        return { name: name, code: code };
+    }
+
     function calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371e3;
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -470,7 +504,7 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // Modal Camera (Works offline)
+    // Modal Camera
     function openScannerModal() {
         const officer = document.getElementById("officer-input").value.trim();
         const feedback = document.getElementById("status-feedback");
@@ -548,7 +582,7 @@
         }
     }
 
-    // GPS Geofence (Hardware satellite works offline)
+    // GPS Geofence
     function verifyGPSPresence() {
         if (!detectedCheckpoint) return;
 
@@ -614,11 +648,11 @@
                 const sel = document.createElement("select");
                 sel.name = q.id;
                 sel.required = true;
-                q.options.forEach(optVal => {
-                    const opt = document.createElement("option");
-                    opt.value = optVal;
-                    opt.innerText = optVal;
-                    sel.appendChild(opt);
+                q.options.forEach(opt => {
+                    const optionEl = document.createElement("option");
+                    optionEl.value = opt.value; // English value for database
+                    optionEl.innerText = opt.label; // Arabic label for officer
+                    sel.appendChild(optionEl);
                 });
                 group.appendChild(sel);
             } else if (q.type === "textarea") {
@@ -663,15 +697,15 @@
     }
 
     // ----------------------------------------------------
-    // OFFLINE CORE 2: Smart Submission Router
+    // SUBMISSION & SYNC ROUTINES
     // ----------------------------------------------------
     function submitPatrolAnswers(event) {
         event.preventDefault();
         const feedback = document.getElementById("status-feedback");
         const submitBtn = document.getElementById("submit-answers-btn");
-        const officer = document.getElementById("officer-input").value.trim();
+        const rawOfficer = document.getElementById("officer-input").value.trim();
 
-        if (!officer) {
+        if (!rawOfficer) {
             alert("يرجى إدخال اسم مسؤول الدورية");
             return;
         }
@@ -682,56 +716,58 @@
         const formEl = event.target;
         const formData = new FormData(formEl);
         let answersObj = {};
-        let answersArr = [];
 
         for (let [key, val] of formData.entries()) {
             answersObj[key] = val;
-            answersArr.push(`${key}: ${val}`);
         }
 
-        const offlineCaptureTime = new Date().toLocaleTimeString('ar-EG');
-        const isOffline = !navigator.onLine;
+        // Parse Officer Name and Code
+        const parsedOfficer = parseOfficerInput(rawOfficer);
 
-        // Note tagging indicating if captured offline
-        if (isOffline) {
-            answersObj.fen_notes = `[أوفلاين - وقت الفحص: ${offlineCaptureTime}] ` + (answersObj.fen_notes || "");
-        }
+        // Record exact capture date and time
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const captureDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+        const captureTime = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+        const isCurrentlyOffline = !navigator.onLine;
+        const internetStatus = isCurrentlyOffline ? "Offline" : "Online";
 
         const payload = {
-            officer: officer,
+            officerName: parsedOfficer.name,
+            officerCode: parsedOfficer.code,
             checkpoint: `${detectedCheckpoint.name} (${detectedCheckpoint.code})`,
             formCode: detectedCheckpoint.formCode || "fen001",
             answers: answersObj,
-            answersSummary: answersArr.join(" | "),
+            captureDate: captureDate,
+            captureTime: captureTime,
+            internetStatus: internetStatus,
             latitude: verifiedGPS.lat,
             longitude: verifiedGPS.lon,
-            accuracy: verifiedGPS.accuracy,
-            distance: verifiedGPS.distance,
-            capturedAt: new Date().toISOString()
+            distance: verifiedGPS.distance // Accuracy removed
         };
 
-        // If currently offline, queue immediately
-        if (isOffline) {
+        // If offline, save to phone queue
+        if (isCurrentlyOffline) {
             saveToOfflineQueue(payload);
             finishSubmissionSuccess(formEl, submitBtn, `✔ تم حفظ تقرير (${detectedCheckpoint.name}) محلياً على الهاتف! سيتم ترحيله فور توفر الإنترنت.`);
             return;
         }
 
-        // Online transmission
+        // If online, dispatch to Google Apps Script
         fetch(SCRIPT_URL, {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         })
-            .then(() => {
-                finishSubmissionSuccess(formEl, submitBtn, `✔ تم بنجاح تسجيل فحص (${detectedCheckpoint.name}) في شيت السور (Fence)!`);
-            })
-            .catch(() => {
-                // Network dropped mid-request -> fallback to offline queue
-                saveToOfflineQueue(payload);
-                finishSubmissionSuccess(formEl, submitBtn, `⚠️ انقطع الاتصال أثناء الإرسال. تم حفظ الفحص محلياً على الهاتف للمزامنة لاحقاً.`);
-            });
+        .then(() => {
+            finishSubmissionSuccess(formEl, submitBtn, `✔ تم بنجاح تسجيل فحص (${detectedCheckpoint.name}) في شيت السور (Fence)!`);
+        })
+        .catch(() => {
+            saveToOfflineQueue(payload);
+            finishSubmissionSuccess(formEl, submitBtn, `⚠️ انقطع الاتصال أثناء الإرسال. تم حفظ الفحص محلياً على الهاتف للمزامنة لاحقاً.`);
+        });
     }
 
     function finishSubmissionSuccess(formEl, submitBtn, msgText) {
@@ -751,9 +787,6 @@
         }, 7000);
     }
 
-    // ----------------------------------------------------
-    // OFFLINE CORE 3: Sequential Sync Engine
-    // ----------------------------------------------------
     function syncPendingPatrols() {
         if (isSyncing || !navigator.onLine) return;
         const queue = getOfflineQueue();
@@ -764,10 +797,8 @@
         feedback.className = "msg warning-text";
         feedback.innerText = `⏳ جاري ترحيل ${queue.length} تقارير معلقة إلى السجلات...`;
 
-        // Sequential async recursion
         function sendNext(index) {
             if (index >= queue.length) {
-                // All synced successfully
                 localStorage.removeItem("dp_pending_patrols");
                 updateQueueUI();
                 isSyncing = false;
@@ -784,16 +815,15 @@
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(item)
             })
-                .then(() => sendNext(index + 1))
-                .catch(() => {
-                    // Internet dropped during sync
-                    const remaining = queue.slice(index);
-                    localStorage.setItem("dp_pending_patrols", JSON.stringify(remaining));
-                    updateQueueUI();
-                    isSyncing = false;
-                    feedback.className = "msg danger-text";
-                    feedback.innerText = `⚠️ انقطعت الشبكة أثناء المزامنة. متبقي ${remaining.length} تقارير محفوظة.`;
-                });
+            .then(() => sendNext(index + 1))
+            .catch(() => {
+                const remaining = queue.slice(index);
+                localStorage.setItem("dp_pending_patrols", JSON.stringify(remaining));
+                updateQueueUI();
+                isSyncing = false;
+                feedback.className = "msg danger-text";
+                feedback.innerText = `⚠️ انقطعت الشبكة أثناء المزامنة. متبقي ${remaining.length} تقارير محفوظة.`;
+            });
         }
 
         sendNext(0);
