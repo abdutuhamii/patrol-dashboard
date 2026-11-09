@@ -880,7 +880,7 @@
         // Uses text/plain to bypass CORS preflight OPTIONS blocking
         fetch(MS_POST_URL, {
             method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
             .then(response => {
@@ -933,7 +933,7 @@
 
             fetch(MS_POST_URL, {
                 method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(item)
             })
                 .then(res => {
