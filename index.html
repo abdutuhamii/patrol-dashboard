@@ -1,960 +1,976 @@
 <!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="referrer" content="no-referrer">
-    <title>DP World - دوريات الموقع</title>
-    <!-- In-browser QR code scanner engine -->
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    <style>
-        :root {
-            --dp-navy: #0b1528;
-            --dp-berry: #ba1b5d;
-            --dp-green: #059669;
-            --dp-warning: #d97706;
-            --dp-gray: #64748b;
-            --dp-border: #cbd5e1;
-            --dp-bg: #f1f5f9;
-            --danger: #dc2626;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Arabic", Tahoma, sans-serif;
-            background-color: var(--dp-bg);
-            color: var(--dp-navy);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-        }
 
-        .dashboard {
-            width: 100%;
-            max-width: 425px;
-            background: #ffffff;
-            padding: 18px 16px;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px -4px rgba(11, 21, 40, 0.08);
-            border: 1px solid var(--dp-border);
-            position: relative;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="referrer" content="no-referrer">
+        <title>DP World - دوريات الموقع</title>
+        <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+        <style>
+            :root {
+                --dp-navy: #0b1528;
+                --dp-berry: #ba1b5d;
+                --dp-green: #059669;
+                --dp-warning: #d97706;
+                --dp-gray: #64748b;
+                --dp-border: #cbd5e1;
+                --dp-bg: #f1f5f9;
+                --danger: #dc2626;
+            }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Arabic", Tahoma, sans-serif;
+                background-color: var(--dp-bg);
+                color: var(--dp-navy);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 12px;
+            }
 
-        /* Status Indicator */
-        .network-bar {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            font-size: 11.5px;
-            font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            background: #f8fafc;
-            border: 1px solid var(--dp-border);
-            width: fit-content;
-        }
-        .net-online { color: var(--dp-green); }
-        .net-offline { color: var(--dp-warning); }
+            .dashboard {
+                width: 100%;
+                max-width: 425px;
+                background: #ffffff;
+                padding: 18px 16px;
+                border-radius: 16px;
+                box-shadow: 0 8px 24px -4px rgba(11, 21, 40, 0.08);
+                border: 1px solid var(--dp-border);
+                position: relative;
+            }
 
-        .header { text-align: center; margin-bottom: 12px; }
-        .logo {
-            height: 44px;
-            max-width: 200px;
-            object-fit: contain;
-            margin: 0 auto 6px auto;
-            display: block;
-        }
-        .app-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--dp-navy);
-            letter-spacing: -0.2px;
-        }
-        .brand-line {
-            height: 3px;
-            width: 100%;
-            background: linear-gradient(90deg, var(--dp-berry) 0%, var(--dp-green) 100%);
-            border-radius: 2px;
-            margin: 8px 0 12px 0;
-        }
+            /* Status Indicator */
+            .network-bar {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                font-size: 12px;
+                font-weight: 800;
+                padding: 4px 10px;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                background: #f8fafc;
+                border: 1px solid var(--dp-border);
+                width: fit-content;
+            }
+            .net-online { color: var(--dp-green); }
+            .net-offline { color: var(--dp-warning); }
 
-        .form-group { margin-bottom: 12px; }
-        label {
-            display: block;
-            font-size: 12.5px;
-            font-weight: 700;
-            color: var(--dp-navy);
-            margin-bottom: 4px;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid var(--dp-border);
-            border-radius: 8px;
-            font-size: 13.5px;
-            font-family: inherit;
-            color: var(--dp-navy);
-            background: #fff;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--dp-berry);
-            outline: none;
-        }
+            .header { text-align: center; margin-bottom: 12px; }
+            .logo {
+                height: 44px;
+                max-width: 200px;
+                object-fit: contain;
+                margin: 0 auto 6px auto;
+                display: block;
+            }
+            .app-title {
+                font-size: 15px;
+                font-weight: 800;
+                color: var(--dp-navy);
+                letter-spacing: -0.2px;
+            }
+            .brand-line {
+                height: 3px;
+                width: 100%;
+                background: linear-gradient(90deg, var(--dp-berry) 0%, var(--dp-green) 100%);
+                border-radius: 2px;
+                margin: 8px 0 12px 0;
+            }
 
-        /* Hero Start Patrol Button */
-        .btn-start-patrol {
-            background: linear-gradient(135deg, var(--dp-navy) 0%, #1e293b 100%);
-            color: #ffffff;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16.5px;
-            font-weight: 800;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(11, 21, 40, 0.2);
-            transition: all 0.2s ease;
-            margin: 14px 0 6px 0;
-            font-family: inherit;
-        }
-        .btn-start-patrol:active { transform: scale(0.98); }
+            .form-group { margin-bottom: 12px; }
+            label {
+                display: block;
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--dp-navy);
+                margin-bottom: 4px;
+            }
+            input, select, textarea {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1.5px solid var(--dp-border);
+                border-radius: 8px;
+                font-size: 14px;
+                font-family: inherit;
+                color: var(--dp-navy);
+                background: #fff;
+            }
+            input:focus, select:focus, textarea:focus {
+                border-color: var(--dp-berry);
+                outline: none;
+            }
 
-        .btn {
-            background: var(--dp-navy);
-            color: white;
-            border: none;
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 700;
-            font-size: 13px;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-        .btn:active { transform: scale(0.98); }
-        .btn-capture-sub {
-            background: #334155;
-            font-size: 12px;
-            padding: 8px;
-            margin-top: 6px;
-        }
+            /* Hero Start Patrol Button */
+            .btn-start-patrol {
+                background: linear-gradient(135deg, var(--dp-navy) 0%, #1e293b 100%);
+                color: #ffffff;
+                border: none;
+                padding: 15px;
+                border-radius: 12px;
+                font-size: 17px;
+                font-weight: 800;
+                cursor: pointer;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                box-shadow: 0 4px 15px rgba(11, 21, 40, 0.2);
+                transition: all 0.2s ease;
+                margin: 14px 0 6px 0;
+                font-family: inherit;
+            }
+            .btn-start-patrol:active { transform: scale(0.98); }
 
-        .msg {
-            font-size: 12.5px;
-            font-weight: 700;
-            text-align: center;
-            min-height: 20px;
-            margin-top: 8px;
-            line-height: 1.4;
-        }
-        .danger-text { color: var(--danger); }
-        .success-text { color: var(--dp-green); }
+            .btn {
+                background: var(--dp-navy);
+                color: white;
+                border: none;
+                padding: 10px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+                width: 100%;
+                font-weight: 700;
+                font-size: 13px;
+                font-family: inherit;
+                transition: all 0.2s;
+            }
+            .btn:active { transform: scale(0.98); }
+            .btn-capture-sub {
+                background: #334155;
+                font-size: 12px;
+                padding: 8px;
+                margin-top: 6px;
+            }
 
-        /* Modals */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(11, 21, 40, 0.88);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            padding: 14px;
-        }
-        .modal-box {
-            background: #fff;
-            width: 100%;
-            max-width: 410px;
-            border-radius: 14px;
-            padding: 18px 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            max-height: 88vh;
-            overflow-y: auto;
-        }
-        .modal-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--dp-navy);
-            margin-bottom: 12px;
-            border-bottom: 2px solid var(--dp-border);
-            padding-bottom: 8px;
-            text-align: center;
-        }
-        .camera-viewport video {
-            width: 100%;
-            max-width: 270px;
-            aspect-ratio: 1/1;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 2px solid var(--dp-green);
-            margin: 0 auto;
-            display: block;
-        }
-        .close-btn {
-            background: #94a3b8;
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            width: 100%;
-            margin-top: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 13px;
-            font-family: inherit;
-        }
+            .msg {
+                font-size: 13px;
+                font-weight: 700;
+                text-align: center;
+                min-height: 20px;
+                margin-top: 8px;
+                line-height: 1.4;
+            }
+            .danger-text { color: var(--danger); }
+            .success-text { color: var(--dp-green); }
 
-        .conditional-box {
-            background: #fff7ed;
-            border: 1.5px dashed var(--dp-warning);
-            border-radius: 8px;
-            padding: 8px;
-            margin-top: 6px;
-            display: none;
-        }
-        .photo-preview {
-            width: 100%;
-            max-height: 120px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-top: 6px;
-            display: none;
-            border: 1px solid #cbd5e1;
-        }
-    </style>
-</head>
-<body>
+            /* Modals */
+            .modal-overlay {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(11, 21, 40, 0.88);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                padding: 14px;
+            }
+            .modal-box {
+                background: #fff;
+                width: 100%;
+                max-width: 410px;
+                border-radius: 14px;
+                padding: 18px 16px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                max-height: 88vh;
+                overflow-y: auto;
+            }
+            .modal-title {
+                font-size: 15px;
+                font-weight: 800;
+                color: var(--dp-navy);
+                margin-bottom: 12px;
+                border-bottom: 2px solid var(--dp-border);
+                padding-bottom: 8px;
+                text-align: center;
+            }
+            .camera-viewport video {
+                width: 100%;
+                max-width: 270px;
+                aspect-ratio: 1/1;
+                border-radius: 12px;
+                object-fit: cover;
+                border: 2px solid var(--dp-green);
+                margin: 0 auto;
+                display: block;
+            }
+            .close-btn {
+                background: #94a3b8;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 8px;
+                width: 100%;
+                margin-top: 8px;
+                cursor: pointer;
+                font-weight: 700;
+                font-size: 13px;
+                font-family: inherit;
+            }
 
-<div class="dashboard">
-    <div class="network-bar">
-        <span id="net-status-text" class="net-online">متصل</span>
-    </div>
+            .conditional-box {
+                background: #fff7ed;
+                border: 1.5px dashed var(--dp-warning);
+                border-radius: 8px;
+                padding: 8px;
+                margin-top: 6px;
+                display: none;
+            }
+            .photo-preview {
+                width: 100%;
+                max-height: 120px;
+                object-fit: cover;
+                border-radius: 6px;
+                margin-top: 6px;
+                display: none;
+                border: 1px solid #cbd5e1;
+            }
+        </style>
+    </head>
 
-    <div class="header">
-        <img class="logo"
-             src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg"
-             alt="DP World Logo"
-             referrerpolicy="no-referrer"
-             crossorigin="anonymous"
-             onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/DP_World_2021_logo.svg/500px-DP_World_2021_logo.svg.png';">
-        <div class="brand-line"></div>
-        <div class="app-title">منظومة الدوريات والتفتيش الذكية</div>
-    </div>
+    <body>
 
-    <div class="form-group">
-        <label for="officer-input">اسم / كود ضابط الدورية:</label>
-        <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود..." autocomplete="off" required>
-        <datalist id="officers-datalist"></datalist>
-    </div>
+        <div class="dashboard">
+            <div class="network-bar">
+                <span id="net-status-text" class="net-online">متصل</span>
+            </div>
 
-    <button type="button" class="btn-start-patrol" id="start-patrol-btn" onclick="executeSingleButtonPatrol()">
-        <span>🛡️</span>
-        <span>بدء الدورية</span>
-    </button>
+            <div class="header">
+                <img class="logo"
+                     src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg"
+                     alt="DP World Logo"
+                     referrerpolicy="no-referrer"
+                     crossorigin="anonymous"
+                     onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/DP_World_2021_logo.svg/500px-DP_World_2021_logo.svg.png';">
+                <div class="brand-line"></div>
+                <div class="app-title">منظومة الدوريات والتفتيش الذكية</div>
+            </div>
 
-    <div id="status-feedback" class="msg"></div>
-</div>
+            <div class="form-group">
+                <label for="officer-input">اسم / كود ضابط الدورية:</label>
+                <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود..." autocomplete="on" required>
+                <datalist id="officers-datalist"></datalist>
+            </div>
 
-<!-- Modal 1: QR Scanner -->
-<div class="modal-overlay" id="qr-modal">
-    <div class="modal-box camera-viewport" style="text-align:center; background:none; box-shadow:none;">
-        <video id="webcam" playsinline></video>
-        <canvas id="qr-canvas" style="display:none;"></canvas>
-        <div style="color:white; font-size:14px; margin-top:12px; font-weight:800;" id="scanner-instruction">وجّه الكاميرا نحو رمز QR عند النقطة</div>
-        <button type="button" class="close-btn" style="background:var(--dp-berry); max-width:200px; margin:14px auto 0;" onclick="terminateScannerModal()">إلغاء</button>
-    </div>
-</div>
-
-<!-- Modal 2: Dynamic Inspection Form -->
-<div class="modal-overlay" id="form-modal">
-    <div class="modal-box">
-        <div class="modal-title" id="form-modal-title">استمارة الفحص الأمني</div>
-        <form id="patrol-inspection-form" onsubmit="processInspectionSubmit(event)">
-            <div id="dynamic-form-fields"></div>
-            <button type="submit" class="btn" style="background:var(--dp-green); padding:11px; font-size:14px; margin-top:10px;" id="submit-inspection-btn">
-                ✔ إرسال وحفظ تقرير الفحص
+            <button type="button" class="btn-start-patrol" id="start-patrol-btn" onclick="executeSingleButtonPatrol()">
+                <span>🛡️</span>
+                <span>بدء الدورية</span>
             </button>
-            <button type="button" class="close-btn" onclick="closeFormModal()">إغلاق مؤقت</button>
-        </form>
-    </div>
-</div>
 
-<!-- Modal 3: Conditional Photo Capture -->
-<div class="modal-overlay" id="photo-capture-modal">
-    <div class="modal-box camera-viewport" style="text-align:center; background:none; box-shadow:none;">
-        <video id="photo-webcam" playsinline></video>
-        <canvas id="photo-canvas" style="display:none;"></canvas>
-        <div style="color:white; font-size:13.5px; margin-top:10px; font-weight:700;">التقط صورة حية لحالة العطل / الملاحظة</div>
-        <button type="button" class="btn" style="background:var(--dp-green); max-width:220px; margin:10px auto 0;" onclick="takeDefectSnapshot()">📸 التقاط الصورة</button>
-        <button type="button" class="close-btn" style="max-width:220px; margin:8px auto 0;" onclick="closePhotoModal()">إلغاء</button>
-    </div>
-</div>
-
-<script>
-    // ========================================================
-    // MICROSOFT 365 POWER AUTOMATE FLOW ENDPOINTS
-    // ========================================================
-    const MS_POST_URL = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/6378a04da38d4ceca40b396ec77642c4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PYXEHEyx3q-D81KB7tbaazfXYrgwlbdEx3nbM2Pk5eU";
-    const MS_GET_URL  = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/b66bbdb67be54eeb819390b27497a5dc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=YyOV5aIndELK6T6d4Q3kM_O7zDCUQ2yFngrgMPrQlec";
-
-    let CHECKPOINTS = {};
-    let OFFICERS = [];
-
-    let activeCheckpoint = null;
-    let telemetryGPS = { lat: null, lon: null, accuracy: null, timestamp: null };
-    let capturedDefectPhotos = {};
-    let activePhotoQuestionId = null;
-    let cameraStream = null;
-    let qrScanInterval = null;
-    let isSyncing = false;
-    let isNetworkOnline = navigator.onLine;
-
-    window.addEventListener("DOMContentLoaded", () => {
-        loadFromLocalStorage();
-        fetchLiveConfiguration();
-        checkActiveConnection();
-
-        window.addEventListener("online", () => {
-            checkActiveConnection();
-            fetchLiveConfiguration();
-            silentBackgroundSync();
-        });
-
-        window.addEventListener("offline", () => {
-            setNetworkStatus(false);
-        });
-
-        setInterval(() => {
-            if (navigator.onLine) checkActiveConnection();
-        }, 15000);
-    });
-
-    function fetchLiveConfiguration() {
-        if (!navigator.onLine || !MS_GET_URL.startsWith("http")) return;
-
-        fetch(MS_GET_URL)
-            .then(res => {
-                if (!res.ok) throw new Error("Config fetch error");
-                return res.json();
-            })
-            .then(data => {
-                processRemoteConfig(data);
-            })
-            .catch(err => {
-                console.warn("Using offline configuration cache:", err);
-            });
-    }
-
-    function processRemoteConfig(data) {
-        if (data.checkpoints && Array.isArray(data.checkpoints)) {
-            CHECKPOINTS = {};
-            data.checkpoints.forEach(row => {
-                const code = String(row.Code || "").trim();
-                if (code) {
-                    CHECKPOINTS[code] = {
-                        code: code,
-                        name: String(row.Name || "").trim(),
-                        lat: parseFloat(row.Latitude),
-                        lon: parseFloat(row.Longitude),
-                        tolerance: parseFloat(row.Tolerance) || 15,
-                        formCode: String(row.FormCode || "fen001").trim()
-                    };
-                }
-            });
-            localStorage.setItem("dp_checkpoints", JSON.stringify(CHECKPOINTS));
-        }
-
-        if (data.officers && Array.isArray(data.officers)) {
-            OFFICERS = [];
-            data.officers.forEach(row => {
-                const name = String(row.Name || "").trim();
-                const code = String(row.Code || "").trim();
-                if (name || code) {
-                    OFFICERS.push({ name, code });
-                }
-            });
-            localStorage.setItem("dp_officers", JSON.stringify(OFFICERS));
-            populateOfficersDatalist(OFFICERS);
-        }
-    }
-
-    function loadFromLocalStorage() {
-        const cp = localStorage.getItem("dp_checkpoints");
-        const off = localStorage.getItem("dp_officers");
-        if (cp) CHECKPOINTS = JSON.parse(cp);
-        if (off) {
-            OFFICERS = JSON.parse(off);
-            populateOfficersDatalist(OFFICERS);
-        }
-    }
-
-    function checkActiveConnection() {
-        if (!navigator.onLine) {
-            setNetworkStatus(false);
-            return;
-        }
-
-        fetch(`https://clients3.google.com/generate_204?_=${Date.now()}`, { mode: 'no-cors', cache: 'no-store' })
-            .then(() => {
-                setNetworkStatus(true);
-                silentBackgroundSync();
-            })
-            .catch(() => {
-                setNetworkStatus(false);
-            });
-    }
-
-    function setNetworkStatus(online) {
-        isNetworkOnline = online;
-        const el = document.getElementById("net-status-text");
-        if (online) {
-            el.className = "net-online";
-            el.innerText = "متصل";
-        } else {
-            el.className = "net-offline";
-            el.innerText = "غير متصل";
-        }
-    }
-
-    function getQueue() {
-        const q = localStorage.getItem("dp_pending_patrols");
-        return q ? JSON.parse(q) : [];
-    }
-
-    function saveToQueue(payload) {
-        const queue = getQueue();
-        queue.push(payload);
-        localStorage.setItem("dp_pending_patrols", JSON.stringify(queue));
-    }
-
-    function populateOfficersDatalist(list) {
-        const dl = document.getElementById("officers-datalist");
-        dl.innerHTML = "";
-        list.forEach(o => {
-            const opt = document.createElement("option");
-            opt.value = `${o.name} (${o.code})`;
-            dl.appendChild(opt);
-        });
-    }
-
-    function parseOfficerInput(raw) {
-        let name = raw.trim();
-        let code = "";
-        const m = raw.match(/^(.*?)(?:\s*\((.*?)\))?$/);
-        if (m) {
-            name = m[1].trim();
-            code = m[2] ? m[2].trim() : "";
-        }
-        return { name, code };
-    }
-
-    function calculateHaversine(lat1, lon1, lat2, lon2) {
-        if (!lat1 || !lon1 || !lat2 || !lon2) return 999999;
-        const R = 6371e3;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-
-    function executeSingleButtonPatrol() {
-        const officerRaw = document.getElementById("officer-input").value.trim();
-        const feedback = document.getElementById("status-feedback");
-        feedback.innerText = "";
-
-        if (!officerRaw) {
-            feedback.className = "msg danger-text";
-            feedback.innerText = "⚠️ برجاء إدخال اسم أو كود مسؤول الدورية أولاً.";
-            return;
-        }
-
-        const modal = document.getElementById("qr-modal");
-        const video = document.getElementById("webcam");
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-            .then(stream => {
-                cameraStream = stream;
-                video.srcObject = stream;
-                video.setAttribute("playsinline", true);
-                video.play();
-                modal.style.display = "flex";
-                qrScanInterval = setInterval(scanQRFrame, 200);
-            })
-            .catch(() => {
-                feedback.className = "msg danger-text";
-                feedback.innerText = "تعذر تشغيل الكاميرا. يرجى تفعيل إذن الكاميرا من إعدادات المتصفح.";
-            });
-    }
-
-    function terminateScannerModal() {
-        clearInterval(qrScanInterval);
-        if (cameraStream) {
-            cameraStream.getTracks().forEach(t => t.stop());
-            cameraStream = null;
-        }
-        document.getElementById("qr-modal").style.display = "none";
-    }
-
-    function scanQRFrame() {
-        const video = document.getElementById("webcam");
-        const canvas = document.getElementById("qr-canvas");
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: "dontInvert" });
-
-            if (code) {
-                const scannedStr = code.data.trim();
-                terminateScannerModal();
-
-                activeCheckpoint = CHECKPOINTS[scannedStr] || {
-                    code: scannedStr,
-                    name: `نقطة غير مسجلة (${scannedStr})`,
-                    lat: 0,
-                    lon: 0,
-                    tolerance: 15,
-                    formCode: "fen001"
-                };
-
-                acquireLocationSilentlyAndShowForm();
-            }
-        }
-    }
-
-    function acquireLocationSilentlyAndShowForm() {
-        const feedback = document.getElementById("status-feedback");
-        feedback.className = "msg";
-        feedback.innerText = "جاري فتح استمارة التفتيش...";
-
-        if (!navigator.geolocation) {
-            telemetryGPS = { lat: 0, lon: 0, accuracy: 9999, timestamp: Date.now() };
-            displayInspectionForm();
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                telemetryGPS = {
-                    lat: pos.coords.latitude,
-                    lon: pos.coords.longitude,
-                    accuracy: Math.round(pos.coords.accuracy),
-                    timestamp: pos.timestamp || Date.now()
-                };
-                feedback.innerText = "";
-                displayInspectionForm();
-            },
-            () => {
-                telemetryGPS = { lat: 0, lon: 0, accuracy: 9999, timestamp: Date.now() };
-                feedback.innerText = "";
-                displayInspectionForm();
-            },
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-        );
-    }
-
-    function displayInspectionForm() {
-        const formCode = activeCheckpoint.formCode || "fen001";
-        const container = document.getElementById("dynamic-form-fields");
-        const titleEl = document.getElementById("form-modal-title");
-        container.innerHTML = "";
-        capturedDefectPhotos = {};
-
-        // FORM A: fen001
-        if (formCode === "fen001") {
-            titleEl.innerText = `استمارة فحص السور - ${activeCheckpoint.name}`;
-            container.innerHTML = `
-                <div class="form-group">
-                    <label>حالة السور:</label>
-                    <select name="fence_status" onchange="evaluatePhotoCondition('fence_status', this.value === 'Broken')">
-                        <option value="Intact">سليم</option>
-                        <option value="Broken">مكسور</option>
-                    </select>
-                    <div id="box_fence_status" class="conditional-box">
-                        <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية للكسر:</label>
-                        <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('fence_status')">📷 التقاط صورة العطل</button>
-                        <img id="preview_fence_status" class="photo-preview">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>حالة الإضاءة:</label>
-                    <select name="light_status" onchange="evaluatePhotoCondition('light_status', this.value === 'Defective')">
-                        <option value="Working">سليمة</option>
-                        <option value="Defective">غير سليمة</option>
-                    </select>
-                    <div id="box_light_status" class="conditional-box">
-                        <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لخلل الإضاءة:</label>
-                        <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('light_status')">📷 التقاط صورة الخلل</button>
-                        <img id="preview_light_status" class="photo-preview">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>هل هناك نقطة اختراق في السور؟</label>
-                    <select name="breach_status" onchange="evaluatePhotoCondition('breach_status', this.value === 'Yes')">
-                        <option value="No">لا</option>
-                        <option value="Yes">نعم</option>
-                    </select>
-                    <div id="box_breach_status" class="conditional-box">
-                        <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لنقطة الاختراق:</label>
-                        <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('breach_status')">📷 التقاط صورة الاختراق</button>
-                        <img id="preview_breach_status" class="photo-preview">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>ملاحظات إضافية:</label>
-                    <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
-                </div>
-            `;
-        }
-        // FORM B: adof001 (Office Inspection with 5 Corrective Action options)
-        else if (formCode === "adof001") {
-            titleEl.innerText = `استمارة فحص المكاتب - ${activeCheckpoint.name}`;
-            container.innerHTML = `
-                <div class="form-group">
-                    <label>حالة المكتب:</label>
-                    <select name="office_status" onchange="evaluateOfficeCondition('office_status', this.value === 'Open')">
-                        <option value="Closed">مغلق</option>
-                        <option value="Open">مفتوح</option>
-                    </select>
-                    <div id="box_office_status" class="conditional-box">
-                        <label>الإجراء التصحيحي لحالة المكتب:</label>
-                        <select name="office_action">
-                            <option value="Leave as is">البقاء كما هو عليه</option>
-                            <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
-                            <option value="Notify office owner">إبلاغ صاحب المكتب</option>
-                            <option value="Closed by officer">تم الإغلاق</option>
-                        </select>
-                        <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('office_status')">📷 التقاط صورة توثيقية للمكتب</button>
-                        <img id="preview_office_status" class="photo-preview">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>حالة التكييف:</label>
-                    <select name="ac_status" onchange="evaluateOfficeCondition('ac_status', this.value === 'Running')">
-                        <option value="Closed">مغلق</option>
-                        <option value="Running">مفتوح</option>
-                    </select>
-                    <div id="box_ac_status" class="conditional-box">
-                        <label>الإجراء التصحيحي للتكييف:</label>
-                        <select name="ac_action">
-                            <option value="Leave as is">البقاء كما هو عليه</option>
-                            <option value="Notify office owner">إبلاغ صاحب المكتب</option>
-                            <option value="Closed by officer">تم الإغلاق</option>
-                        </select>
-                        <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('ac_status')">📷 التقاط صورة للتكييف</button>
-                        <img id="preview_ac_status" class="photo-preview">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>هل هناك مقتنيات معرضة للسرقة؟</label>
-                    <select name="belongings_status" onchange="evaluateOfficeCondition('belongings_status', this.value === 'Yes')">
-                        <option value="No">لا</option>
-                        <option value="Yes">نعم</option>
-                    </select>
-                    <div id="box_belongings_status" class="conditional-box">
-                        <label>الإجراء التصحيحي للمقتنيات:</label>
-                        <select name="belongings_action">
-                            <option value="Leave as is">البقاء كما هو عليه</option>
-                            <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
-                            <option value="Notify office owner">إبلاغ صاحب المكتب</option>
-                            <option value="Handed over to control room">تم التسليم إلي غرفة التحكم</option>
-                        </select>
-                        <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('belongings_status')">📷 التقاط صورة المقتنيات</button>
-                        <img id="preview_belongings_status" class="photo-preview">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>ملاحظات إضافية:</label>
-                    <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
-                </div>
-            `;
-        }
-        // FORM C: sp001 (Security Posts Inspection)
-        else if (formCode === "sp001") {
-            titleEl.innerText = `استمارة نقطة الحراسة - ${activeCheckpoint.name}`;
-            container.innerHTML = `
-                <div class="form-group">
-                    <label>اسم ضابط الدورية:</label>
-                    <input type="text" value="${document.getElementById('officer-input').value.trim()}" readonly style="background:#f8fafc; font-weight:700;">
-                </div>
-
-                <div class="form-group">
-                    <label>حالة النطاق الأمني:</label>
-                    <select name="perimeter_clean">
-                        <option value="Clean">نظيف</option>
-                        <option value="Dirty">غير نظيف</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>حالة فرد الأمن:</label>
-                    <select name="personnel_present">
-                        <option value="Present">متواجد</option>
-                        <option value="Absent">غير متواجد</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>حالة أدوات السلامة:</label>
-                    <select name="safety_equip">
-                        <option value="Intact">سليمة</option>
-                        <option value="Damaged">غير سليمة</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>هل فرد الأمن نائم؟</label>
-                    <select name="is_sleeping">
-                        <option value="No">لا</option>
-                        <option value="Yes">نعم</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>هل فرد الأمن يرتدي الزي؟</label>
-                    <select name="wearing_uniform">
-                        <option value="Yes">نعم</option>
-                        <option value="No">لا</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>هل الزي مهندم؟</label>
-                    <select name="uniform_neat">
-                        <option value="Yes">نعم</option>
-                        <option value="No">لا</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>ملاحظات:</label>
-                    <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
-                </div>
-            `;
-        }
-
-        document.getElementById("form-modal").style.display = "flex";
-    }
-
-    function evaluatePhotoCondition(fieldId, isNegative) {
-        const box = document.getElementById(`box_${fieldId}`);
-        if (box) box.style.display = isNegative ? "block" : "none";
-        if (!isNegative) delete capturedDefectPhotos[fieldId];
-    }
-
-    function evaluateOfficeCondition(fieldId, isNegative) {
-        const box = document.getElementById(`box_${fieldId}`);
-        if (box) box.style.display = isNegative ? "block" : "none";
-        if (!isNegative) delete capturedDefectPhotos[fieldId];
-    }
-
-    function closeFormModal() {
-        document.getElementById("form-modal").style.display = "none";
-    }
-
-    let photoStream = null;
-    function openPhotoCaptureModal(questionId) {
-        activePhotoQuestionId = questionId;
-        const modal = document.getElementById("photo-capture-modal");
-        const video = document.getElementById("photo-webcam");
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-            .then(stream => {
-                photoStream = stream;
-                video.srcObject = stream;
-                video.setAttribute("playsinline", true);
-                video.play();
-                modal.style.display = "flex";
-            })
-            .catch(() => alert("تعذر فتح كاميرا التوثيق."));
-    }
-
-    function closePhotoModal() {
-        if (photoStream) {
-            photoStream.getTracks().forEach(t => t.stop());
-            photoStream = null;
-        }
-        document.getElementById("photo-capture-modal").style.display = "none";
-    }
-
-    function takeDefectSnapshot() {
-        const video = document.getElementById("photo-webcam");
-        const canvas = document.getElementById("photo-canvas");
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        const base64Data = canvas.toDataURL("image/jpeg", 0.5);
-        capturedDefectPhotos[activePhotoQuestionId] = base64Data;
-
-        const preview = document.getElementById(`preview_${activePhotoQuestionId}`);
-        if (preview) {
-            preview.src = base64Data;
-            preview.style.display = "block";
-        }
-
-        closePhotoModal();
-    }
-
-    // ----------------------------------------------------
-    // PREFLIGHT-FREE SUBMISSION & SILENT AUTO-SYNC
-    // ----------------------------------------------------
-    function processInspectionSubmit(event) {
-        event.preventDefault();
-        const feedback = document.getElementById("status-feedback");
-        const submitBtn = document.getElementById("submit-inspection-btn");
-        const officerRaw = document.getElementById("officer-input").value.trim();
-
-        submitBtn.disabled = true;
-        submitBtn.innerText = "جاري ترحيل التقرير...";
-
-        const parsedOfficer = parseOfficerInput(officerRaw);
-        const formEl = event.target;
-        const formData = new FormData(formEl);
-        let answersObj = {};
-
-        for (let [key, val] of formData.entries()) {
-            answersObj[key] = val;
-        }
-
-        const now = new Date();
-        const pad = n => String(n).padStart(2, '0');
-        const captureDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-        const captureTime = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-
-        const distanceMeters = Math.round(calculateHaversine(
-            telemetryGPS.lat, telemetryGPS.lon, activeCheckpoint.lat, activeCheckpoint.lon
-        ));
-
-        let isDefect = false;
-        if (activeCheckpoint.formCode === "fen001") {
-            isDefect = (answersObj.fence_status === "Broken" || answersObj.light_status === "Defective" || answersObj.breach_status === "Yes");
-        } else if (activeCheckpoint.formCode === "adof001") {
-            isDefect = (answersObj.office_status === "Open" || answersObj.ac_status === "Running" || answersObj.belongings_status === "Yes");
-        } else if (activeCheckpoint.formCode === "sp001") {
-            isDefect = (answersObj.perimeter_clean === "Dirty" || answersObj.personnel_present === "Absent" || answersObj.safety_equip === "Damaged" || answersObj.is_sleeping === "Yes" || answersObj.wearing_uniform === "No" || answersObj.uniform_neat === "No");
-        }
-
-        const allowedTolerance = Math.max(activeCheckpoint.tolerance || 15, telemetryGPS.accuracy || 0);
-        const isSuspicious = distanceMeters > allowedTolerance;
-
-        const payload = {
-            officerName: parsedOfficer.name,
-            officerCode: parsedOfficer.code,
-            checkpointCode: activeCheckpoint.code,
-            checkpointName: activeCheckpoint.name,
-            formCode: activeCheckpoint.formCode || "fen001",
-            answers: answersObj,
-            photos: capturedDefectPhotos,
-            captureDate: captureDate,
-            captureTime: captureTime,
-            internetStatus: isNetworkOnline ? "Online" : "Offline",
-            latitude: telemetryGPS.lat,
-            longitude: telemetryGPS.lon,
-            distance: distanceMeters,
-            inspectionStatus: isDefect ? "FLAGGED_DEFECT" : "NORMAL",
-            securityStatus: isSuspicious ? "SUSPICIOUS / MANIPULATED" : "VERIFIED",
-            securityFlags: isSuspicious ? `OUT_OF_BOUNDS (${distanceMeters}m > ${allowedTolerance}m)` : "CLEAN"
-        };
-
-        if (!isNetworkOnline) {
-            saveToQueue(payload);
-            finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
-            return;
-        }
-
-        fetch(MS_POST_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        })
-            .then(response => {
-                if (!response.ok) throw new Error("HTTP error " + response.status);
-                finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
-            })
-            .catch(err => {
-                console.warn("Direct submission failed, adding to offline queue:", err);
-                saveToQueue(payload);
-                finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
-            });
-    }
-
-    function finishSubmissionFlow(formEl, submitBtn, msgText) {
-        const feedback = document.getElementById("status-feedback");
-        closeFormModal();
-        formEl.reset();
-        submitBtn.disabled = false;
-        submitBtn.innerText = "✔ إرسال وحفظ تقرير الفحص";
-
-        feedback.className = "msg success-text";
-        feedback.innerText = msgText;
-
-        activeCheckpoint = null;
-        telemetryGPS = { lat: null, lon: null, accuracy: null, timestamp: null };
-        capturedDefectPhotos = {};
-
-        setTimeout(() => {
-            if (feedback.innerText.includes("تم")) feedback.innerText = "";
-        }, 5000);
-    }
-
-    function silentBackgroundSync() {
-        if (isSyncing || !isNetworkOnline) return;
-        const queue = getQueue();
-        if (queue.length === 0) return;
-
-        isSyncing = true;
-
-        function sendNext() {
-            const currentQueue = getQueue();
-            if (currentQueue.length === 0) {
-                isSyncing = false;
-                return;
-            }
-
-            const item = currentQueue[0];
-
-            fetch(MS_POST_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(item)
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error("Sync status: " + res.status);
-                    const updatedQueue = getQueue();
-                    updatedQueue.shift();
-                    localStorage.setItem("dp_pending_patrols", JSON.stringify(updatedQueue));
-                    sendNext();
-                })
-                .catch(err => {
-                    console.warn("Sync failed, queue preserved:", err);
-                    isSyncing = false;
+            <div id="status-feedback" class="msg"></div>
+        </div>
+
+        <!-- Modal 1: QR Scanner -->
+        <div class="modal-overlay" id="qr-modal">
+            <div class="modal-box camera-viewport" style="text-align:center; background:none; box-shadow:none;">
+                <video id="webcam" playsinline></video>
+                <canvas id="qr-canvas" style="display:none;"></canvas>
+                <div style="color:white; font-size:14px; margin-top:12px; font-weight:800;" id="scanner-instruction">وجّه الكاميرا نحو رمز QR عند النقطة</div>
+                <button type="button" class="close-btn" style="background:var(--dp-berry); max-width:200px; margin:14px auto 0;" onclick="terminateScannerModal()">إلغاء</button>
+            </div>
+        </div>
+
+        <!-- Modal 2: Dynamic Inspection Form -->
+        <div class="modal-overlay" id="form-modal">
+            <div class="modal-box">
+                <div class="modal-title" id="form-modal-title">استمارة الفحص الأمني</div>
+                <form id="patrol-inspection-form" onsubmit="processInspectionSubmit(event)">
+                    <div id="dynamic-form-fields"></div>
+                    <button type="submit" class="btn" style="background:var(--dp-green); padding:11px; font-size:14px; margin-top:10px;" id="submit-inspection-btn">
+                        ✔ إرسال تقرير الفحص
+                    </button>
+                    <button type="button" class="close-btn" onclick="closeFormModal()">إغلاق مؤقت</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal 3: Conditional Photo Capture -->
+        <div class="modal-overlay" id="photo-capture-modal">
+            <div class="modal-box camera-viewport" style="text-align:center; background:none; box-shadow:none;">
+                <video id="photo-webcam" playsinline></video>
+                <canvas id="photo-canvas" style="display:none;"></canvas>
+                <div style="color:white; font-size:14px; margin-top:10px; font-weight:700;">التقط صورة حية لحالة العطل / الملاحظة</div>
+                <button type="button" class="btn" style="background:var(--dp-green); max-width:220px; margin:10px auto 0;" onclick="takeDefectSnapshot()">📸 التقاط الصورة</button>
+                <button type="button" class="close-btn" style="max-width:220px; margin:8px auto 0;" onclick="closePhotoModal()">إلغاء</button>
+            </div>
+        </div>
+
+        <script>
+
+            const MS_POST_URL = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/6378a04da38d4ceca40b396ec77642c4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PYXEHEyx3q-D81KB7tbaazfXYrgwlbdEx3nbM2Pk5eU";
+
+            const MS_GET_URL  = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/b66bbdb67be54eeb819390b27497a5dc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=YyOV5aIndELK6T6d4Q3kM_O7zDCUQ2yFngrgMPrQlec";
+
+            let CHECKPOINTS = {};
+            let OFFICERS = [];
+
+            let activeCheckpoint = null;
+            let telemetryGPS = { lat: null, lon: null, accuracy: null, timestamp: null };
+            let capturedDefectPhotos = {};
+            let activePhotoQuestionId = null;
+            let cameraStream = null;
+            let qrScanInterval = null;
+            let isSyncing = false;
+            let isNetworkOnline = navigator.onLine;
+
+            window.addEventListener("DOMContentLoaded", () => {
+                loadFromLocalStorage();
+                fetchLiveConfiguration();
+                checkActiveConnection();
+
+                window.addEventListener("online", () => {
+                    checkActiveConnection();
+                    fetchLiveConfiguration();
+                    silentBackgroundSync();
                 });
-        }
 
-        sendNext();
-    }
-</script>
-</body>
+                window.addEventListener("offline", () => {
+                    setNetworkStatus(false);
+                });
+
+                setInterval(() => {
+                    if (navigator.onLine) checkActiveConnection();
+                }, 15000);
+            });
+
+            function fetchLiveConfiguration() {
+                if (!navigator.onLine || !MS_GET_URL.startsWith("http")) return;
+
+                fetch(MS_GET_URL)
+                    .then(res => {
+                        if (!res.ok) throw new Error("Config fetch error");
+                        return res.json();
+                    })
+                    .then(data => {
+                        processRemoteConfig(data);
+                    })
+                    .catch(err => {
+                        console.warn("Using offline configuration cache:", err);
+                    });
+            }
+
+            function processRemoteConfig(data) {
+                if (data.checkpoints && Array.isArray(data.checkpoints)) {
+                    CHECKPOINTS = {};
+                    data.checkpoints.forEach(row => {
+                        const code = String(row.Code || "").trim();
+                        if (code) {
+                            CHECKPOINTS[code] = {
+                                code: code,
+                                name: String(row.Name || "").trim(),
+                                lat: parseFloat(row.Latitude),
+                                lon: parseFloat(row.Longitude),
+                                tolerance: parseFloat(row.Tolerance) || 15,
+                                formCode: String(row.FormCode || "fen001").trim().toLowerCase()
+                            };
+                        }
+                    });
+                    localStorage.setItem("dp_checkpoints", JSON.stringify(CHECKPOINTS));
+                }
+
+                if (data.officers && Array.isArray(data.officers)) {
+                    OFFICERS = [];
+                    data.officers.forEach(row => {
+                        const name = String(row.Name || "").trim();
+                        const code = String(row.Code || "").trim();
+                        if (name || code) {
+                            OFFICERS.push({ name, code });
+                        }
+                    });
+                    localStorage.setItem("dp_officers", JSON.stringify(OFFICERS));
+                    populateOfficersDatalist(OFFICERS);
+                }
+            }
+
+            function loadFromLocalStorage() {
+                const cp = localStorage.getItem("dp_checkpoints");
+                const off = localStorage.getItem("dp_officers");
+                if (cp) CHECKPOINTS = JSON.parse(cp);
+                if (off) {
+                    OFFICERS = JSON.parse(off);
+                    populateOfficersDatalist(OFFICERS);
+                }
+            }
+
+            function checkActiveConnection() {
+                if (!navigator.onLine) {
+                    setNetworkStatus(false);
+                    return;
+                }
+
+                fetch(`https://clients3.google.com/generate_204?_=${Date.now()}`, { mode: 'no-cors', cache: 'no-store' })
+                    .then(() => {
+                        setNetworkStatus(true);
+                        silentBackgroundSync();
+                    })
+                    .catch(() => {
+                        setNetworkStatus(false);
+                    });
+            }
+
+            function setNetworkStatus(online) {
+                isNetworkOnline = online;
+                const el = document.getElementById("net-status-text");
+                if (online) {
+                    el.className = "net-online";
+                    el.innerText = "متصل";
+                } else {
+                    el.className = "net-offline";
+                    el.innerText = "غير متصل";
+                }
+            }
+
+            function getQueue() {
+                const q = localStorage.getItem("dp_pending_patrols");
+                return q ? JSON.parse(q) : [];
+            }
+
+            function saveToQueue(payload) {
+                const queue = getQueue();
+                queue.push(payload);
+                localStorage.setItem("dp_pending_patrols", JSON.stringify(queue));
+            }
+
+            function populateOfficersDatalist(list) {
+                const dl = document.getElementById("officers-datalist");
+                dl.innerHTML = "";
+                list.forEach(o => {
+                    const opt = document.createElement("option");
+                    opt.value = `${o.name} (${o.code})`;
+                    dl.appendChild(opt);
+                });
+            }
+
+            function parseOfficerInput(raw) {
+                let name = raw.trim();
+                let code = "";
+                const m = raw.match(/^(.*?)(?:\s*\((.*?)\))?$/);
+                if (m) {
+                    name = m[1].trim();
+                    code = m[2] ? m[2].trim() : "";
+                }
+                return { name, code };
+            }
+
+            function calculateHaversine(lat1, lon1, lat2, lon2) {
+                if (!lat1 || !lon1 || !lat2 || !lon2) return 999999;
+                const R = 6371e3;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            }
+
+            function executeSingleButtonPatrol() {
+                const officerRaw = document.getElementById("officer-input").value.trim();
+                const feedback = document.getElementById("status-feedback");
+                feedback.innerText = "";
+
+                if (!officerRaw) {
+                    feedback.className = "msg danger-text";
+                    feedback.innerText = "⚠️ برجاء إدخال اسم أو كود مسؤول الدورية أولاً.";
+                    return;
+                }
+
+                const modal = document.getElementById("qr-modal");
+                const video = document.getElementById("webcam");
+
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+                    .then(stream => {
+                        cameraStream = stream;
+                        video.srcObject = stream;
+                        video.setAttribute("playsinline", "true");
+                        video.play();
+                        modal.style.display = "flex";
+                        qrScanInterval = setInterval(scanQRFrame, 200);
+                    })
+                    .catch(() => {
+                        feedback.className = "msg danger-text";
+                        feedback.innerText = "تعذر تشغيل الكاميرا. يرجى تفعيل إذن الكاميرا من إعدادات المتصفح.";
+                    });
+            }
+
+            function terminateScannerModal() {
+                clearInterval(qrScanInterval);
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(t => t.stop());
+                    cameraStream = null;
+                }
+                document.getElementById("qr-modal").style.display = "none";
+            }
+
+            function scanQRFrame() {
+                const video = document.getElementById("webcam");
+                const canvas = document.getElementById("qr-canvas");
+                const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    /* global jsQR */
+                    const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: "dontInvert" });
+
+                    if (code) {
+                        const scannedStr = code.data.trim();
+                        terminateScannerModal();
+
+                        activeCheckpoint = CHECKPOINTS[scannedStr] || {
+                            code: scannedStr,
+                            name: `نقطة غير مسجلة (${scannedStr})`,
+                            lat: 0,
+                            lon: 0,
+                            tolerance: 15,
+                            formCode: "fen001"
+                        };
+
+                        acquireLocationSilentlyAndShowForm();
+                    }
+                }
+            }
+
+            function acquireLocationSilentlyAndShowForm() {
+                const feedback = document.getElementById("status-feedback");
+                feedback.className = "msg";
+                feedback.innerText = "جاري فتح استمارة التفتيش...";
+
+                if (!navigator.geolocation) {
+                    telemetryGPS = { lat: 0, lon: 0, accuracy: 9999, timestamp: Date.now() };
+                    displayInspectionForm();
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        telemetryGPS = {
+                            lat: pos.coords.latitude,
+                            lon: pos.coords.longitude,
+                            accuracy: Math.round(pos.coords.accuracy),
+                            timestamp: pos.timestamp || Date.now()
+                        };
+                        feedback.innerText = "";
+                        displayInspectionForm();
+                    },
+                    () => {
+                        telemetryGPS = { lat: 0, lon: 0, accuracy: 9999, timestamp: Date.now() };
+                        feedback.innerText = "";
+                        displayInspectionForm();
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            }
+
+            function displayInspectionForm() {
+                const formCode = (activeCheckpoint.formCode || "fen001").toString().toLowerCase().trim();
+                const container = document.getElementById("dynamic-form-fields");
+                const titleEl = document.getElementById("form-modal-title");
+                container.innerHTML = "";
+                capturedDefectPhotos = {};
+
+                // FORM A: fen001
+                if (formCode === "fen001") {
+                    titleEl.innerText = `استمارة فحص السور - ${activeCheckpoint.name}`;
+                    container.innerHTML = `
+                        <div class="form-group">
+                            <label>حالة السور:</label>
+                            <select name="fence_status" onchange="evaluatePhotoCondition('fence_status', this.value === 'Broken')">
+                                <option value="Intact">سليم</option>
+                                <option value="Broken">مكسور</option>
+                            </select>
+                            <div id="box_fence_status" class="conditional-box">
+                                <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية للكسر:</label>
+                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('fence_status')">📷 التقاط صورة العطل</button>
+                                <img id="preview_fence_status" class="photo-preview" alt="معاينة الصورة">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>حالة الإضاءة:</label>
+                            <select name="light_status" onchange="evaluatePhotoCondition('light_status', this.value === 'Defective')">
+                                <option value="Working">سليمة</option>
+                                <option value="Defective">غير سليمة</option>
+                            </select>
+                            <div id="box_light_status" class="conditional-box">
+                                <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لخلل الإضاءة:</label>
+                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('light_status')">📷 التقاط صورة الخلل</button>
+                                <img id="preview_light_status" class="photo-preview" alt="معاينة الصورة">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>هل هناك نقطة اختراق في السور؟</label>
+                            <select name="breach_status" onchange="evaluatePhotoCondition('breach_status', this.value === 'Yes')">
+                                <option value="No">لا</option>
+                                <option value="Yes">نعم</option>
+                            </select>
+                            <div id="box_breach_status" class="conditional-box">
+                                <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لنقطة الاختراق:</label>
+                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('breach_status')">📷 التقاط صورة الاختراق</button>
+                                <img id="preview_breach_status" class="photo-preview" alt="معاينة الصورة">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ملاحظات إضافية:</label>
+                            <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
+                        </div>
+                    `;
+                }
+                // FORM B: adof001 (Office Inspection with ALL 5 Corrective Action options)
+                else if (formCode === "adof001") {
+                    titleEl.innerText = `استمارة فحص المكاتب - ${activeCheckpoint.name}`;
+                    container.innerHTML = `
+                        <div class="form-group">
+                            <label>حالة المكتب:</label>
+                            <select name="office_status" onchange="evaluateOfficeCondition('office_status', this.value === 'Open')">
+                                <option value="Closed">مغلق</option>
+                                <option value="Open">مفتوح</option>
+                            </select>
+                            <div id="box_office_status" class="conditional-box">
+                                <label>الإجراء التصحيحي لحالة المكتب:</label>
+                                <select name="office_action">
+                                    <option value="Leave as is">البقاء كما هو عليه</option>
+                                    <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
+                                    <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                                    <option value="Closed by officer">تم الإغلاق</option>
+                                </select>
+                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('office_status')">📷 التقاط صورة توثيقية للمكتب</button>
+                                <img id="preview_office_status" class="photo-preview" alt="معاينة الصورة">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>حالة التكييف:</label>
+                            <select name="ac_status" onchange="evaluateOfficeCondition('ac_status', this.value === 'Running')">
+                                <option value="Closed">مغلق</option>
+                                <option value="Running">مفتوح</option>
+                            </select>
+                            <div id="box_ac_status" class="conditional-box">
+                                <label>الإجراء التصحيحي للتكييف:</label>
+                                <select name="ac_action">
+                                    <option value="Leave as is">البقاء كما هو عليه</option>
+                                    <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                                    <option value="Closed by officer">تم الإغلاق</option>
+                                </select>
+                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('ac_status')">📷 التقاط صورة للتكييف</button>
+                                <img id="preview_ac_status" class="photo-preview" alt="معاينة الصورة">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>هل هناك مقتنيات معرضة للسرقة؟</label>
+                            <select name="belongings_status" onchange="evaluateOfficeCondition('belongings_status', this.value === 'Yes')">
+                                <option value="No">لا</option>
+                                <option value="Yes">نعم</option>
+                            </select>
+                            <div id="box_belongings_status" class="conditional-box">
+                                <label>الإجراء التصحيحي للمقتنيات:</label>
+                                <select name="belongings_action">
+                                    <option value="Leave as is">البقاء كما هو عليه</option>
+                                    <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
+                                    <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                                    <option value="Handed over to control room">تم التسليم إلي غرفة التحكم</option>
+                                </select>
+                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('belongings_status')">📷 التقاط صورة المقتنيات</button>
+                                <img id="preview_belongings_status" class="photo-preview" alt="معاينة الصورة">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ملاحظات إضافية:</label>
+                            <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
+                        </div>
+                    `;
+                }
+                // FORM C: sp001 (Security Posts Inspection)
+                else if (formCode === "sp001") {
+                    titleEl.innerText = `استمارة نقطة الحراسة - ${activeCheckpoint.name}`;
+                    container.innerHTML = `
+                        <div class="form-group">
+                            <label>اسم ضابط الدورية:</label>
+                            <input type="text" value="${document.getElementById('officer-input').value.trim()}" readonly style="background:#f8fafc; font-weight:700;">
+                        </div>
+
+                        <div class="form-group">
+                            <label>حالة النطاق الأمني:</label>
+                            <select name="perimeter_clean">
+                                <option value="Clean">نظيف</option>
+                                <option value="Dirty">غير نظيف</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>حالة فرد الأمن:</label>
+                            <select name="personnel_present">
+                                <option value="Present">متواجد</option>
+                                <option value="Absent">غير متواجد</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>حالة أدوات السلامة:</label>
+                            <select name="safety_equip">
+                                <option value="Intact">سليمة</option>
+                                <option value="Damaged">غير سليمة</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>هل فرد الأمن نائم؟</label>
+                            <select name="is_sleeping">
+                                <option value="No">لا</option>
+                                <option value="Yes">نعم</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>هل فرد الأمن يرتدي الزي؟</label>
+                            <select name="wearing_uniform">
+                                <option value="Yes">نعم</option>
+                                <option value="No">لا</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>هل الزي مهندم؟</label>
+                            <select name="uniform_neat">
+                                <option value="Yes">نعم</option>
+                                <option value="No">لا</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ملاحظات:</label>
+                            <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
+                        </div>
+                    `;
+                }
+
+                document.getElementById("form-modal").style.display = "flex";
+            }
+
+            function evaluatePhotoCondition(fieldId, isNegative) {
+                const box = document.getElementById(`box_${fieldId}`);
+                if (box) box.style.display = isNegative ? "block" : "none";
+                if (!isNegative) delete capturedDefectPhotos[fieldId];
+            }
+
+            function evaluateOfficeCondition(fieldId, isNegative) {
+                const box = document.getElementById(`box_${fieldId}`);
+                if (box) box.style.display = isNegative ? "block" : "none";
+                if (!isNegative) delete capturedDefectPhotos[fieldId];
+            }
+
+            function closeFormModal() {
+                document.getElementById("form-modal").style.display = "none";
+            }
+
+            let photoStream = null;
+            function openPhotoCaptureModal(questionId) {
+                activePhotoQuestionId = questionId;
+                const modal = document.getElementById("photo-capture-modal");
+                const video = document.getElementById("photo-webcam");
+
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+                    .then(stream => {
+                        photoStream = stream;
+                        video.srcObject = stream;
+                        video.setAttribute("playsinline", "true");
+                        video.play();
+                        modal.style.display = "flex";
+                    })
+                    .catch(() => alert("تعذر فتح كاميرا التوثيق."));
+            }
+
+            function closePhotoModal() {
+                if (photoStream) {
+                    photoStream.getTracks().forEach(t => t.stop());
+                    photoStream = null;
+                }
+                document.getElementById("photo-capture-modal").style.display = "none";
+            }
+
+            function takeDefectSnapshot() {
+                const video = document.getElementById("photo-webcam");
+                const canvas = document.getElementById("photo-canvas");
+                const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const base64Data = canvas.toDataURL("image/jpeg", 0.5);
+                capturedDefectPhotos[activePhotoQuestionId] = base64Data;
+
+                const preview = document.getElementById(`preview_${activePhotoQuestionId}`);
+                if (preview) {
+                    preview.src = base64Data;
+                    preview.style.display = "block";
+                }
+
+                closePhotoModal();
+            }
+            
+            function processInspectionSubmit(event) {
+                event.preventDefault();
+                const submitBtn = document.getElementById("submit-inspection-btn");
+                const officerRaw = document.getElementById("officer-input").value.trim();
+
+                submitBtn.disabled = true;
+                submitBtn.innerText = "جاري ترحيل التقرير...";
+
+                const parsedOfficer = parseOfficerInput(officerRaw);
+                const formEl = event.target;
+                const formData = new FormData(formEl);
+                let answersObj = {};
+
+                for (let [key, val] of formData.entries()) {
+                    answersObj[key] = val;
+                }
+
+                const now = new Date();
+                const pad = n => String(n).padStart(2, '0');
+                const captureDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+                const captureTime = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+                const distanceMeters = Math.round(calculateHaversine(
+                    telemetryGPS.lat, telemetryGPS.lon, activeCheckpoint.lat, activeCheckpoint.lon
+                ));
+
+                // Case-insensitive, robust defect detection across all 3 forms
+                const currentForm = (activeCheckpoint.formCode || "fen001").toString().toLowerCase().trim();
+                let isDefect = false;
+                if (currentForm === "fen001") {
+                    const fenceVal = String(answersObj["fence_status"] || "").trim().toLowerCase();
+                    const lightVal = String(answersObj["light_status"] || "").trim().toLowerCase();
+                    const breachVal = String(answersObj["breach_status"] || "").trim().toLowerCase();
+                    isDefect = (fenceVal === "broken" || lightVal === "defective" || breachVal === "yes");
+                } else if (currentForm === "adof001") {
+                    const officeVal = String(answersObj["office_status"] || "").trim().toLowerCase();
+                    const acVal = String(answersObj["ac_status"] || "").trim().toLowerCase();
+                    const belongVal = String(answersObj["belongings_status"] || "").trim().toLowerCase();
+                    isDefect = (officeVal === "open" || acVal === "running" || belongVal === "yes");
+                } else if (currentForm === "sp001") {
+                    const perimVal = String(answersObj["perimeter_clean"] || "").trim().toLowerCase();
+                    const personVal = String(answersObj["personnel_present"] || "").trim().toLowerCase();
+                    const equipVal = String(answersObj["safety_equip"] || "").trim().toLowerCase();
+                    const sleepVal = String(answersObj["is_sleeping"] || "").trim().toLowerCase();
+                    const unifVal = String(answersObj["wearing_uniform"] || "").trim().toLowerCase();
+                    const neatVal = String(answersObj["uniform_neat"] || "").trim().toLowerCase();
+                    isDefect = (perimVal === "dirty" || personVal === "absent" || equipVal === "damaged" || sleepVal === "yes" || unifVal === "no" || neatVal === "no");
+                }
+
+                const allowedTolerance = Math.max(activeCheckpoint.tolerance || 15, telemetryGPS.accuracy || 0);
+                const isSuspicious = distanceMeters > allowedTolerance;
+
+                const payload = {
+                    officerName: parsedOfficer.name,
+                    officerCode: parsedOfficer.code,
+                    checkpointCode: activeCheckpoint.code,
+                    checkpointName: activeCheckpoint.name,
+                    formCode: activeCheckpoint.formCode || "fen001",
+                    answers: answersObj,
+                    photos: capturedDefectPhotos,
+                    captureDate: captureDate,
+                    captureTime: captureTime,
+                    internetStatus: isNetworkOnline ? "Online" : "Offline",
+                    latitude: telemetryGPS.lat,
+                    longitude: telemetryGPS.lon,
+                    distance: distanceMeters,
+                    inspectionStatus: isDefect ? "FLAGGED_DEFECT" : "NORMAL",
+                    securityStatus: isSuspicious ? "SUSPICIOUS / MANIPULATED" : "VERIFIED",
+                    securityFlags: isSuspicious ? `OUT_OF_BOUNDS (${distanceMeters}m > ${allowedTolerance}m)` : "CLEAN"
+                };
+
+                if (!isNetworkOnline) {
+                    saveToQueue(payload);
+                    finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
+                    return;
+                }
+
+                fetch(MS_POST_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error("HTTP error " + response.status);
+                        finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
+                    })
+                    .catch(err => {
+                        console.warn("Direct submission failed, adding to offline queue:", err);
+                        saveToQueue(payload);
+                        finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
+                    });
+            }
+
+            function finishSubmissionFlow(formEl, submitBtn, msgText) {
+                const feedback = document.getElementById("status-feedback");
+                closeFormModal();
+                formEl.reset();
+                submitBtn.disabled = false;
+                submitBtn.innerText = "✔ إرسال وحفظ تقرير الفحص";
+
+                feedback.className = "msg success-text";
+                feedback.innerText = msgText;
+
+                activeCheckpoint = null;
+                telemetryGPS = { lat: null, lon: null, accuracy: null, timestamp: null };
+                capturedDefectPhotos = {};
+
+                setTimeout(() => {
+                    if (feedback.innerText.includes("تم")) feedback.innerText = "";
+                }, 5000);
+            }
+
+            // SILENT AUTO-SYNC
+            function silentBackgroundSync() {
+                if (isSyncing || !isNetworkOnline) return;
+                const queue = getQueue();
+                if (queue.length === 0) return;
+
+                isSyncing = true;
+
+                function sendNext() {
+                    const currentQueue = getQueue();
+                    if (currentQueue.length === 0) {
+                        isSyncing = false;
+                        return;
+                    }
+
+                    const item = currentQueue[0];
+
+                    fetch(MS_POST_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(item)
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error("Sync status: " + res.status);
+                            const updatedQueue = getQueue();
+                            updatedQueue.shift();
+                            localStorage.setItem("dp_pending_patrols", JSON.stringify(updatedQueue));
+                            sendNext();
+                        })
+                        .catch(err => {
+                            console.warn("Sync failed, queue preserved:", err);
+                            isSyncing = false;
+                        });
+                }
+
+                sendNext();
+            }
+
+        </script>
+
+    </body>
+
 </html>
