@@ -103,7 +103,7 @@
             outline: none;
         }
 
-        /* Hero Single Start Button */
+        /* Hero Start Patrol Button */
         .btn-start-patrol {
             background: linear-gradient(135deg, var(--dp-navy) 0%, #1e293b 100%);
             color: #ffffff;
@@ -233,12 +233,12 @@
 <body>
 
 <div class="dashboard">
-    <!-- Simplified Network Status -->
+    <!-- Network Status Indicator -->
     <div class="network-bar">
         <span id="net-status-text" class="net-online">متصل</span>
     </div>
 
-    <!-- Header & Official Logo -->
+    <!-- DP World Official Logo -->
     <div class="header">
         <img class="logo" 
              src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg" 
@@ -250,14 +250,14 @@
         <div class="app-title">منظومة الدوريات والتفتيش الذكية</div>
     </div>
 
-    <!-- Officer Selection -->
+    <!-- Searchable Officer Selection Input -->
     <div class="form-group">
         <label for="officer-input">اسم / كود ضابط الدورية:</label>
         <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود (مثال: 30061)..." autocomplete="off" required>
         <datalist id="officers-datalist"></datalist>
     </div>
 
-    <!-- Start Patrol Button -->
+    <!-- SINGLE PROMINENT ACTION BUTTON -->
     <button type="button" class="btn-start-patrol" id="start-patrol-btn" onclick="executeSingleButtonPatrol()">
         <span>🛡️</span>
         <span>بدء الدورية</span>
@@ -276,14 +276,12 @@
     </div>
 </div>
 
-<!-- Modal 2: Inspection Forms -->
+<!-- Modal 2: Dynamic Inspection Form -->
 <div class="modal-overlay" id="form-modal">
     <div class="modal-box">
         <div class="modal-title" id="form-modal-title">استمارة الفحص الأمني</div>
-
         <form id="patrol-inspection-form" onsubmit="processInspectionSubmit(event)">
             <div id="dynamic-form-fields"></div>
-
             <button type="submit" class="btn" style="background:var(--dp-green); padding:11px; font-size:14px; margin-top:10px;" id="submit-inspection-btn">
                 ✔ إرسال وحفظ تقرير الفحص
             </button>
@@ -292,7 +290,7 @@
     </div>
 </div>
 
-<!-- Modal 3: Camera Capture for Photos -->
+<!-- Modal 3: Conditional Photo Capture -->
 <div class="modal-overlay" id="photo-capture-modal">
     <div class="modal-box camera-viewport" style="text-align:center; background:none; box-shadow:none;">
         <video id="photo-webcam" playsinline></video>
@@ -305,13 +303,12 @@
 
 <script>
     // ========================================================
-    // BACKEND CONFIGURATION
+    // MICROSOFT 365 ENDPOINT CONFIGURATION
+    // Paste your Power Automate HTTP POST URL below:
     // ========================================================
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7HVGhMFj9Dp8S2vAH9ZwugfdYYP-eYBk1oqoYVPd_IodMvjSGjl_-GaZC_5UlxuHPmQ/exec";
+    const MS_POST_URL = "PASTE_YOUR_POWER_AUTOMATE_POST_URL_HERE";
 
     // Application State
-    let CHECKPOINTS = {};
-    let OFFICERS = [];
     let activeCheckpoint = null;
     let telemetryGPS = { lat: null, lon: null, accuracy: null, timestamp: null };
     let capturedDefectPhotos = {}; 
@@ -321,10 +318,53 @@
     let isSyncing = false;
     let isNetworkOnline = navigator.onLine;
 
-    // ----------------------------------------------------
-    // INITIALIZATION & SAFE CONNECTIVITY MONITORING
-    // ----------------------------------------------------
+    // Local Checkpoint & Officer Configurations (Updated automatically or offline)
+    const CHECKPOINTS = {
+        "messabzataom": { code: "messabzataom", name: "المحطة 1 - السور الشمالي", lat: 29.70873, lon: 32.29259, tolerance: 15, formCode: "fen001" },
+        "juwinKwe": { code: "juwinKwe", name: "البوابة الرئيسية", lat: 29.70885, lon: 32.29270, tolerance: 15, formCode: "sp001" },
+        "adof_hq": { code: "adof_hq", name: "مكاتب الإدارة العامة", lat: 29.70910, lon: 32.29310, tolerance: 15, formCode: "adof001" }
+    };
+
+    const OFFICERS = [
+        { name: "محمود محمد محمد", code: "30061" },
+        { name: "محمد حسين حسين", code: "30018" },
+        { name: "أحمد جميل على", code: "30063" },
+        { name: "محمد رسمي الهبال", code: "30066" },
+        { name: "يوسف محمد عبدالغنى", code: "30120" },
+        { name: "عبدالرحمن محمد السيد", code: "30124" },
+        { name: "عمر خالد محمد", code: "30125" },
+        { name: "محمد حسين محمد", code: "30126" },
+        { name: "مصطفى أحمد عطا", code: "30130" },
+        { name: "محمد سعيد محمد", code: "30016" },
+        { name: "محمد ناصر صغير", code: "30036" },
+        { name: "محمود جاد الكريم", code: "30041" },
+        { name: "أحمد محمد التركمان", code: "30042" },
+        { name: "كيرولوس ناصر مسعود", code: "30119" },
+        { name: "إبراهيم على على", code: "30014" },
+        { name: "عبدالله أحمد محمد", code: "30020" },
+        { name: "محمد صلاح عبدالله", code: "30040" },
+        { name: "محمد رفاعى عبدالفتاح", code: "30121" },
+        { name: "مهند عاطف محمد", code: "30030" },
+        { name: "فارس وليد عبدالغفار", code: "30133" },
+        { name: "مصطفى صلاح أحمد", code: "30017" },
+        { name: "إسلام فرج عبدالعاطى", code: "30048" },
+        { name: "أدهم محمد علاك", code: "30054" },
+        { name: "أحمد علاء مختار", code: "30098" },
+        { name: "وليد حافظ المصرى", code: "30019" },
+        { name: "أحمد سمير عواد", code: "30034" },
+        { name: "حسين محمد حسين", code: "30132" },
+        { name: "مصطفى عيد أبوالحمد", code: "30138" },
+        { name: "محمود عادل شعبان", code: "30137" },
+        { name: "أحمد ياسر أحمد", code: "30129" },
+        { name: "رمضان محمد رمضان", code: "30140" },
+        { name: "أحمد ياسر عبدالعزيز", code: "30139" },
+        { name: "محمد محمود السيد", code: "3005" },
+        { name: "على عزت مصطفى", code: "30127" },
+        { name: "أحمد ثروت عطاالله", code: "30142" }
+    ];
+
     window.addEventListener("DOMContentLoaded", () => {
+        populateOfficersDatalist(OFFICERS);
         checkActiveConnection();
 
         window.addEventListener("online", () => {
@@ -335,32 +375,12 @@
             setNetworkStatus(false);
         });
 
-        // Periodic check (runs only if navigator thinks it is online, preventing offline DNS error spam)
+        // Pings periodically only when navigator states online (eliminates offline DNS console errors)
         setInterval(() => {
             if (navigator.onLine) checkActiveConnection();
         }, 15000);
-
-        if (navigator.onLine) {
-            fetch(SCRIPT_URL)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.checkpoints) {
-                        CHECKPOINTS = data.checkpoints;
-                        localStorage.setItem("dp_checkpoints", JSON.stringify(CHECKPOINTS));
-                    }
-                    if (data.officers) {
-                        OFFICERS = data.officers;
-                        localStorage.setItem("dp_officers", JSON.stringify(OFFICERS));
-                        populateOfficersDatalist(OFFICERS);
-                    }
-                })
-                .catch(() => loadFromOfflineCache());
-        } else {
-            loadFromOfflineCache();
-        }
     });
 
-    // Uses Google's standard 204 endpoint to verify active gateway connectivity without console spam
     function checkActiveConnection() {
         if (!navigator.onLine) {
             setNetworkStatus(false);
@@ -386,16 +406,6 @@
         } else {
             el.className = "net-offline";
             el.innerText = "غير متصل";
-        }
-    }
-
-    function loadFromOfflineCache() {
-        const cp = localStorage.getItem("dp_checkpoints");
-        const off = localStorage.getItem("dp_officers");
-        if (cp) CHECKPOINTS = JSON.parse(cp);
-        if (off) {
-            OFFICERS = JSON.parse(off);
-            populateOfficersDatalist(OFFICERS);
         }
     }
 
@@ -431,8 +441,19 @@
         return { name, code };
     }
 
+    function calculateHaversine(lat1, lon1, lat2, lon2) {
+        if (!lat1 || !lon1 || !lat2 || !lon2) return 999999;
+        const R = 6371e3;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
     // ----------------------------------------------------
-    // SINGLE-BUTTON WORKFLOW
+    // SINGLE-BUTTON PATROL WORKFLOW
     // ----------------------------------------------------
     function executeSingleButtonPatrol() {
         const officerRaw = document.getElementById("officer-input").value.trim();
@@ -447,7 +468,6 @@
 
         const modal = document.getElementById("qr-modal");
         const video = document.getElementById("webcam");
-        document.getElementById("scanner-instruction").innerText = "وجّه الكاميرا نحو رمز QR عند النقطة";
 
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
             .then(stream => {
@@ -460,7 +480,7 @@
             })
             .catch(() => {
                 feedback.className = "msg danger-text";
-                feedback.innerText = "تعذر تشغيل الكاميرا. يرجى تفعيل إذن الكاميرا.";
+                feedback.innerText = "تعذر تشغيل الكاميرا. يرجى تفعيل إذن الكاميرا من إعدادات المتصفح.";
             });
     }
 
@@ -473,7 +493,6 @@
         document.getElementById("qr-modal").style.display = "none";
     }
 
-    // Canvas readback optimized with { willReadFrequently: true }
     function scanQRFrame() {
         const video = document.getElementById("webcam");
         const canvas = document.getElementById("qr-canvas");
@@ -491,18 +510,14 @@
                 const scannedStr = code.data.trim();
                 terminateScannerModal();
 
-                if (CHECKPOINTS[scannedStr]) {
-                    activeCheckpoint = CHECKPOINTS[scannedStr];
-                } else {
-                    activeCheckpoint = {
-                        code: scannedStr,
-                        name: `نقطة (${scannedStr})`,
-                        lat: 0,
-                        lon: 0,
-                        tolerance: 15,
-                        formCode: "fen001"
-                    };
-                }
+                activeCheckpoint = CHECKPOINTS[scannedStr] || {
+                    code: scannedStr,
+                    name: `نقطة غير مسجلة (${scannedStr})`,
+                    lat: 0,
+                    lon: 0,
+                    tolerance: 15,
+                    formCode: "fen001"
+                };
 
                 acquireLocationSilentlyAndShowForm();
             }
@@ -541,7 +556,7 @@
     }
 
     // ----------------------------------------------------
-    // FORMS LOGIC
+    // INSPECTION FORMS SCHEMA
     // ----------------------------------------------------
     function displayInspectionForm() {
         const formCode = activeCheckpoint.formCode || "fen001";
@@ -550,7 +565,7 @@
         container.innerHTML = "";
         capturedDefectPhotos = {};
 
-        // FORM A: fen001
+        // FORM A: fen001 (Fence Inspection)
         if (formCode === "fen001") {
             titleEl.innerText = `استمارة فحص السور - ${activeCheckpoint.name}`;
             container.innerHTML = `
@@ -600,7 +615,7 @@
             `;
         }
 
-        // FORM B: adof001
+        // FORM B: adof001 (Office Inspection)
         else if (formCode === "adof001") {
             titleEl.innerText = `استمارة فحص المكاتب - ${activeCheckpoint.name}`;
             container.innerHTML = `
@@ -665,7 +680,7 @@
             `;
         }
 
-        // FORM C: sp001
+        // FORM C: sp001 (Security Personnel Post Inspection)
         else if (formCode === "sp001") {
             titleEl.innerText = `استمارة نقطة الحراسة - ${activeCheckpoint.name}`;
             container.innerHTML = `
@@ -749,7 +764,7 @@
     }
 
     // ----------------------------------------------------
-    // IN-FORM PHOTO CAPTURE
+    // LIVE CAMERA CAPTURE (NO FILE PICKER)
     // ----------------------------------------------------
     let photoStream = null;
     function openPhotoCaptureModal(questionId) {
@@ -798,7 +813,7 @@
     }
 
     // ----------------------------------------------------
-    // SUBMISSION & BACKGROUND SYNC
+    // SUBMISSION & BACKGROUND SYNC (MICROSOFT ENDPOINT)
     // ----------------------------------------------------
     function processInspectionSubmit(event) {
         event.preventDefault();
@@ -823,6 +838,24 @@
         const captureDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
         const captureTime = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
+        // Accurate Distance Calculation
+        const distanceMeters = Math.round(calculateHaversine(
+            telemetryGPS.lat, telemetryGPS.lon, activeCheckpoint.lat, activeCheckpoint.lon
+        ));
+
+        // Pre-computed statuses to simplify Power Automate without nested formulas
+        let isDefect = false;
+        if (activeCheckpoint.formCode === "fen001") {
+            isDefect = (answersObj.fence_status === "Broken" || answersObj.light_status === "Defective" || answersObj.breach_status === "Yes");
+        } else if (activeCheckpoint.formCode === "adof001") {
+            isDefect = (answersObj.office_status === "Open" || answersObj.ac_status === "Running" || answersObj.belongings_status === "Yes");
+        } else if (activeCheckpoint.formCode === "sp001") {
+            isDefect = (answersObj.perimeter_clean === "Dirty" || answersObj.personnel_present === "Absent" || answersObj.safety_equip === "Damaged" || answersObj.is_sleeping === "Yes" || answersObj.wearing_uniform === "No" || answersObj.uniform_neat === "No");
+        }
+
+        const allowedTolerance = Math.max(activeCheckpoint.tolerance || 15, telemetryGPS.accuracy || 0);
+        const isSuspicious = distanceMeters > allowedTolerance;
+
         const payload = {
             officerName: parsedOfficer.name,
             officerCode: parsedOfficer.code,
@@ -836,28 +869,30 @@
             internetStatus: isNetworkOnline ? "Online" : "Offline",
             latitude: telemetryGPS.lat,
             longitude: telemetryGPS.lon,
-            accuracy: telemetryGPS.accuracy
+            distance: distanceMeters,
+            inspectionStatus: isDefect ? "FLAGGED_DEFECT" : "NORMAL",
+            securityStatus: isSuspicious ? "SUSPICIOUS / MANIPULATED" : "VERIFIED",
+            securityFlags: isSuspicious ? `OUT_OF_BOUNDS (${distanceMeters}m > ${allowedTolerance}m)` : "CLEAN"
         };
 
-        // If offline, store locally without making a network request
         if (!isNetworkOnline) {
             saveToQueue(payload);
             finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
             return;
         }
 
-        // Online transmission
-        fetch(SCRIPT_URL, {
+        // Standard CORS POST to Power Automate Flow
+        fetch(MS_POST_URL, {
             method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-        .then(() => {
+        .then(response => {
+            if (!response.ok) throw new Error("HTTP error");
             finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
         })
         .catch(() => {
-            // In case fetch fails, queue locally
+            // Automatic fallback to local offline queue
             saveToQueue(payload);
             finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
         });
@@ -882,7 +917,7 @@
         }, 5000);
     }
 
-    // SILENT BACKGROUND SYNC (No alerts, banners, or officer dialogs)
+    // SILENT AUTO-SYNC (Zero alerts or dialogs)
     function silentBackgroundSync() {
         if (isSyncing || !isNetworkOnline) return;
         const queue = getQueue();
@@ -897,13 +932,15 @@
                 return;
             }
 
-            fetch(SCRIPT_URL, {
+            fetch(MS_POST_URL, {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(queue[idx])
             })
-            .then(() => sendNext(idx + 1))
+            .then(r => {
+                if (!r.ok) throw new Error("Sync failure");
+                sendNext(idx + 1);
+            })
             .catch(() => {
                 const remaining = queue.slice(idx);
                 localStorage.setItem("dp_pending_patrols", JSON.stringify(remaining));
