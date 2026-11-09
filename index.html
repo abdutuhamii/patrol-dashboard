@@ -41,7 +41,7 @@
             position: relative;
         }
 
-        /* Simplified Status Bar */
+        /* Status Indicator */
         .network-bar {
             display: flex;
             justify-content: flex-start;
@@ -233,12 +233,10 @@
 <body>
 
 <div class="dashboard">
-    <!-- Network Status Indicator -->
     <div class="network-bar">
         <span id="net-status-text" class="net-online">متصل</span>
     </div>
 
-    <!-- DP World Official Logo -->
     <div class="header">
         <img class="logo"
              src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg"
@@ -250,14 +248,12 @@
         <div class="app-title">منظومة الدوريات والتفتيش الذكية</div>
     </div>
 
-    <!-- Dynamic Officer Selection Input (Populated from Excel) -->
     <div class="form-group">
         <label for="officer-input">اسم / كود ضابط الدورية:</label>
         <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود..." autocomplete="off" required>
         <datalist id="officers-datalist"></datalist>
     </div>
 
-    <!-- Start Patrol Button -->
     <button type="button" class="btn-start-patrol" id="start-patrol-btn" onclick="executeSingleButtonPatrol()">
         <span>🛡️</span>
         <span>بدء الدورية</span>
@@ -308,11 +304,9 @@
     const MS_POST_URL = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/6378a04da38d4ceca40b396ec77642c4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PYXEHEyx3q-D81KB7tbaazfXYrgwlbdEx3nbM2Pk5eU";
     const MS_GET_URL  = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/b66bbdb67be54eeb819390b27497a5dc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=YyOV5aIndELK6T6d4Q3kM_O7zDCUQ2yFngrgMPrQlec";
 
-    // Dynamic Registries (Zero hardcoded arrays - Populated from Excel)
     let CHECKPOINTS = {};
     let OFFICERS = [];
 
-    // State Variables
     let activeCheckpoint = null;
     let telemetryGPS = { lat: null, lon: null, accuracy: null, timestamp: null };
     let capturedDefectPhotos = {};
@@ -322,17 +316,9 @@
     let isSyncing = false;
     let isNetworkOnline = navigator.onLine;
 
-    // ----------------------------------------------------
-    // INITIALIZATION & DYNAMIC DATA INGESTION
-    // ----------------------------------------------------
     window.addEventListener("DOMContentLoaded", () => {
-        // 1. Immediately load any previously cached data (offline resilience)
         loadFromLocalStorage();
-
-        // 2. Fetch live data from Excel tables via Power Automate
         fetchLiveConfiguration();
-
-        // 3. Monitor Network status & silent auto-sync
         checkActiveConnection();
 
         window.addEventListener("online", () => {
@@ -350,26 +336,23 @@
         }, 15000);
     });
 
-    // Fetches Table_Checkpoints and Table_Officers from Excel Online
     function fetchLiveConfiguration() {
         if (!navigator.onLine || !MS_GET_URL.startsWith("http")) return;
 
         fetch(MS_GET_URL)
             .then(res => {
-                if (!res.ok) throw new Error("Network error fetching config");
+                if (!res.ok) throw new Error("Config fetch error");
                 return res.json();
             })
             .then(data => {
                 processRemoteConfig(data);
             })
             .catch(err => {
-                console.warn("Could not fetch remote config, relying on local cache:", err);
+                console.warn("Using offline configuration cache:", err);
             });
     }
 
-    // Converts raw Excel Online rows into the system's runtime registries
     function processRemoteConfig(data) {
-        // Map Checkpoints
         if (data.checkpoints && Array.isArray(data.checkpoints)) {
             CHECKPOINTS = {};
             data.checkpoints.forEach(row => {
@@ -388,7 +371,6 @@
             localStorage.setItem("dp_checkpoints", JSON.stringify(CHECKPOINTS));
         }
 
-        // Map Officers
         if (data.officers && Array.isArray(data.officers)) {
             OFFICERS = [];
             data.officers.forEach(row => {
@@ -484,9 +466,6 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // ----------------------------------------------------
-    // SINGLE-BUTTON PATROL WORKFLOW
-    // ----------------------------------------------------
     function executeSingleButtonPatrol() {
         const officerRaw = document.getElementById("officer-input").value.trim();
         const feedback = document.getElementById("status-feedback");
@@ -587,9 +566,6 @@
         );
     }
 
-    // ----------------------------------------------------
-    // INSPECTION FORMS SCHEMA
-    // ----------------------------------------------------
     function displayInspectionForm() {
         const formCode = activeCheckpoint.formCode || "fen001";
         const container = document.getElementById("dynamic-form-fields");
@@ -597,7 +573,6 @@
         container.innerHTML = "";
         capturedDefectPhotos = {};
 
-        // FORM A: fen001 (Fence Inspection)
         if (formCode === "fen001") {
             titleEl.innerText = `استمارة فحص السور - ${activeCheckpoint.name}`;
             container.innerHTML = `
@@ -645,10 +620,7 @@
                     <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
                 </div>
             `;
-        }
-
-        // FORM B: adof001 (Office Inspection)
-        else if (formCode === "adof001") {
+        } else if (formCode === "adof001") {
             titleEl.innerText = `استمارة فحص المكاتب - ${activeCheckpoint.name}`;
             container.innerHTML = `
                 <div class="form-group">
@@ -710,10 +682,7 @@
                     <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
                 </div>
             `;
-        }
-
-        // FORM C: sp001 (Security Personnel Post Inspection)
-        else if (formCode === "sp001") {
+        } else if (formCode === "sp001") {
             titleEl.innerText = `استمارة نقطة الحراسة - ${activeCheckpoint.name}`;
             container.innerHTML = `
                 <div class="form-group">
@@ -795,9 +764,6 @@
         document.getElementById("form-modal").style.display = "none";
     }
 
-    // ----------------------------------------------------
-    // LIVE CAMERA CAPTURE (NO FILE PICKER)
-    // ----------------------------------------------------
     let photoStream = null;
     function openPhotoCaptureModal(questionId) {
         activePhotoQuestionId = questionId;
@@ -845,7 +811,7 @@
     }
 
     // ----------------------------------------------------
-    // SUBMISSION & BACKGROUND SYNC (MICROSOFT ENDPOINT)
+    // PREFLIGHT-FREE SUBMISSION & SILENT AUTO-SYNC
     // ----------------------------------------------------
     function processInspectionSubmit(event) {
         event.preventDefault();
@@ -870,12 +836,10 @@
         const captureDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
         const captureTime = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
-        // Accurate Distance Calculation
         const distanceMeters = Math.round(calculateHaversine(
             telemetryGPS.lat, telemetryGPS.lon, activeCheckpoint.lat, activeCheckpoint.lon
         ));
 
-        // Pre-computed statuses to simplify Power Automate without nested formulas
         let isDefect = false;
         if (activeCheckpoint.formCode === "fen001") {
             isDefect = (answersObj.fence_status === "Broken" || answersObj.light_status === "Defective" || answersObj.breach_status === "Yes");
@@ -913,18 +877,19 @@
             return;
         }
 
-        // Standard CORS POST to Power Automate Flow
+        // Uses text/plain to bypass CORS preflight OPTIONS blocking
         fetch(MS_POST_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         })
             .then(response => {
-                if (!response.ok) throw new Error("HTTP error");
+                if (!response.ok) throw new Error("HTTP error " + response.status);
+                // On direct online success, do NOT add to queue
                 finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
             })
-            .catch(() => {
-                // Automatic fallback to local offline queue
+            .catch(err => {
+                console.warn("Direct submission failed, adding to offline queue:", err);
                 saveToQueue(payload);
                 finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
             });
@@ -949,7 +914,7 @@
         }, 5000);
     }
 
-    // SILENT AUTO-SYNC (Zero alerts or dialogs)
+    // SILENT AUTO-SYNC (Purges successfully sent items from queue)
     function silentBackgroundSync() {
         if (isSyncing || !isNetworkOnline) return;
         const queue = getQueue();
@@ -957,30 +922,35 @@
 
         isSyncing = true;
 
-        function sendNext(idx) {
-            if (idx >= queue.length) {
-                localStorage.removeItem("dp_pending_patrols");
+        function sendNext() {
+            const currentQueue = getQueue();
+            if (currentQueue.length === 0) {
                 isSyncing = false;
                 return;
             }
 
+            const item = currentQueue[0];
+
             fetch(MS_POST_URL, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(queue[idx])
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(item)
             })
-                .then(r => {
-                    if (!r.ok) throw new Error("Sync failure");
-                    sendNext(idx + 1);
+                .then(res => {
+                    if (!res.ok) throw new Error("Sync status: " + res.status);
+                    // Remove item from storage immediately upon confirmation
+                    const updatedQueue = getQueue();
+                    updatedQueue.shift();
+                    localStorage.setItem("dp_pending_patrols", JSON.stringify(updatedQueue));
+                    sendNext();
                 })
-                .catch(() => {
-                    const remaining = queue.slice(idx);
-                    localStorage.setItem("dp_pending_patrols", JSON.stringify(remaining));
+                .catch(err => {
+                    console.warn("Sync failed, queue preserved:", err);
                     isSyncing = false;
                 });
         }
 
-        sendNext(0);
+        sendNext();
     }
 </script>
 </body>
