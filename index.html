@@ -29,7 +29,7 @@
             justify-content: center;
             padding: 12px;
         }
-        
+
         .dashboard {
             width: 100%;
             max-width: 425px;
@@ -240,8 +240,8 @@
 
     <!-- DP World Official Logo -->
     <div class="header">
-        <img class="logo" 
-             src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg" 
+        <img class="logo"
+             src="https://upload.wikimedia.org/wikipedia/commons/2/2d/DP_World_2021_logo.svg"
              alt="DP World Logo"
              referrerpolicy="no-referrer"
              crossorigin="anonymous"
@@ -250,14 +250,14 @@
         <div class="app-title">منظومة الدوريات والتفتيش الذكية</div>
     </div>
 
-    <!-- Searchable Officer Selection Input -->
+    <!-- Dynamic Officer Selection Input (Populated from Excel) -->
     <div class="form-group">
         <label for="officer-input">اسم / كود ضابط الدورية:</label>
-        <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود (مثال: 30061)..." autocomplete="off" required>
+        <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود..." autocomplete="off" required>
         <datalist id="officers-datalist"></datalist>
     </div>
 
-    <!-- SINGLE PROMINENT ACTION BUTTON -->
+    <!-- Start Patrol Button -->
     <button type="button" class="btn-start-patrol" id="start-patrol-btn" onclick="executeSingleButtonPatrol()">
         <span>🛡️</span>
         <span>بدء الدورية</span>
@@ -303,83 +303,115 @@
 
 <script>
     // ========================================================
-    // MICROSOFT 365 ENDPOINT CONFIGURATION
-    // Paste your Power Automate HTTP POST URL below:
+    // MICROSOFT 365 POWER AUTOMATE FLOW ENDPOINTS
     // ========================================================
     const MS_POST_URL = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/6378a04da38d4ceca40b396ec77642c4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PYXEHEyx3q-D81KB7tbaazfXYrgwlbdEx3nbM2Pk5eU";
+    const MS_GET_URL  = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/b66bbdb67be54eeb819390b27497a5dc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=YyOV5aIndELK6T6d4Q3kM_O7zDCUQ2yFngrgMPrQlec";
 
-    // Application State
+    // Dynamic Registries (Zero hardcoded arrays - Populated from Excel)
+    let CHECKPOINTS = {};
+    let OFFICERS = [];
+
+    // State Variables
     let activeCheckpoint = null;
     let telemetryGPS = { lat: null, lon: null, accuracy: null, timestamp: null };
-    let capturedDefectPhotos = {}; 
+    let capturedDefectPhotos = {};
     let activePhotoQuestionId = null;
     let cameraStream = null;
     let qrScanInterval = null;
     let isSyncing = false;
     let isNetworkOnline = navigator.onLine;
 
-    // Local Checkpoint & Officer Configurations (Updated automatically or offline)
-    const CHECKPOINTS = {
-        "messabzataom": { code: "messabzataom", name: "المحطة 1 - السور الشمالي", lat: 29.70873, lon: 32.29259, tolerance: 15, formCode: "fen001" },
-        "juwinKwe": { code: "juwinKwe", name: "البوابة الرئيسية", lat: 29.70885, lon: 32.29270, tolerance: 15, formCode: "sp001" },
-        "adof_hq": { code: "adof_hq", name: "مكاتب الإدارة العامة", lat: 29.70910, lon: 32.29310, tolerance: 15, formCode: "adof001" }
-    };
-
-    const OFFICERS = [
-        { name: "محمود محمد محمد", code: "30061" },
-        { name: "محمد حسين حسين", code: "30018" },
-        { name: "أحمد جميل على", code: "30063" },
-        { name: "محمد رسمي الهبال", code: "30066" },
-        { name: "يوسف محمد عبدالغنى", code: "30120" },
-        { name: "عبدالرحمن محمد السيد", code: "30124" },
-        { name: "عمر خالد محمد", code: "30125" },
-        { name: "محمد حسين محمد", code: "30126" },
-        { name: "مصطفى أحمد عطا", code: "30130" },
-        { name: "محمد سعيد محمد", code: "30016" },
-        { name: "محمد ناصر صغير", code: "30036" },
-        { name: "محمود جاد الكريم", code: "30041" },
-        { name: "أحمد محمد التركمان", code: "30042" },
-        { name: "كيرولوس ناصر مسعود", code: "30119" },
-        { name: "إبراهيم على على", code: "30014" },
-        { name: "عبدالله أحمد محمد", code: "30020" },
-        { name: "محمد صلاح عبدالله", code: "30040" },
-        { name: "محمد رفاعى عبدالفتاح", code: "30121" },
-        { name: "مهند عاطف محمد", code: "30030" },
-        { name: "فارس وليد عبدالغفار", code: "30133" },
-        { name: "مصطفى صلاح أحمد", code: "30017" },
-        { name: "إسلام فرج عبدالعاطى", code: "30048" },
-        { name: "أدهم محمد علاك", code: "30054" },
-        { name: "أحمد علاء مختار", code: "30098" },
-        { name: "وليد حافظ المصرى", code: "30019" },
-        { name: "أحمد سمير عواد", code: "30034" },
-        { name: "حسين محمد حسين", code: "30132" },
-        { name: "مصطفى عيد أبوالحمد", code: "30138" },
-        { name: "محمود عادل شعبان", code: "30137" },
-        { name: "أحمد ياسر أحمد", code: "30129" },
-        { name: "رمضان محمد رمضان", code: "30140" },
-        { name: "أحمد ياسر عبدالعزيز", code: "30139" },
-        { name: "محمد محمود السيد", code: "3005" },
-        { name: "على عزت مصطفى", code: "30127" },
-        { name: "أحمد ثروت عطاالله", code: "30142" }
-    ];
-
+    // ----------------------------------------------------
+    // INITIALIZATION & DYNAMIC DATA INGESTION
+    // ----------------------------------------------------
     window.addEventListener("DOMContentLoaded", () => {
-        populateOfficersDatalist(OFFICERS);
+        // 1. Immediately load any previously cached data (offline resilience)
+        loadFromLocalStorage();
+
+        // 2. Fetch live data from Excel tables via Power Automate
+        fetchLiveConfiguration();
+
+        // 3. Monitor Network status & silent auto-sync
         checkActiveConnection();
 
         window.addEventListener("online", () => {
             checkActiveConnection();
+            fetchLiveConfiguration();
             silentBackgroundSync();
         });
+
         window.addEventListener("offline", () => {
             setNetworkStatus(false);
         });
 
-        // Pings periodically only when navigator states online (eliminates offline DNS console errors)
         setInterval(() => {
             if (navigator.onLine) checkActiveConnection();
         }, 15000);
     });
+
+    // Fetches Table_Checkpoints and Table_Officers from Excel Online
+    function fetchLiveConfiguration() {
+        if (!navigator.onLine || !MS_GET_URL.startsWith("http")) return;
+
+        fetch(MS_GET_URL)
+            .then(res => {
+                if (!res.ok) throw new Error("Network error fetching config");
+                return res.json();
+            })
+            .then(data => {
+                processRemoteConfig(data);
+            })
+            .catch(err => {
+                console.warn("Could not fetch remote config, relying on local cache:", err);
+            });
+    }
+
+    // Converts raw Excel Online rows into the system's runtime registries
+    function processRemoteConfig(data) {
+        // Map Checkpoints
+        if (data.checkpoints && Array.isArray(data.checkpoints)) {
+            CHECKPOINTS = {};
+            data.checkpoints.forEach(row => {
+                const code = String(row.Code || "").trim();
+                if (code) {
+                    CHECKPOINTS[code] = {
+                        code: code,
+                        name: String(row.Name || "").trim(),
+                        lat: parseFloat(row.Latitude),
+                        lon: parseFloat(row.Longitude),
+                        tolerance: parseFloat(row.Tolerance) || 15,
+                        formCode: String(row.FormCode || "fen001").trim()
+                    };
+                }
+            });
+            localStorage.setItem("dp_checkpoints", JSON.stringify(CHECKPOINTS));
+        }
+
+        // Map Officers
+        if (data.officers && Array.isArray(data.officers)) {
+            OFFICERS = [];
+            data.officers.forEach(row => {
+                const name = String(row.Name || "").trim();
+                const code = String(row.Code || "").trim();
+                if (name || code) {
+                    OFFICERS.push({ name, code });
+                }
+            });
+            localStorage.setItem("dp_officers", JSON.stringify(OFFICERS));
+            populateOfficersDatalist(OFFICERS);
+        }
+    }
+
+    function loadFromLocalStorage() {
+        const cp = localStorage.getItem("dp_checkpoints");
+        const off = localStorage.getItem("dp_officers");
+        if (cp) CHECKPOINTS = JSON.parse(cp);
+        if (off) {
+            OFFICERS = JSON.parse(off);
+            populateOfficersDatalist(OFFICERS);
+        }
+    }
 
     function checkActiveConnection() {
         if (!navigator.onLine) {
@@ -447,8 +479,8 @@
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
@@ -887,15 +919,15 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-        .then(response => {
-            if (!response.ok) throw new Error("HTTP error");
-            finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
-        })
-        .catch(() => {
-            // Automatic fallback to local offline queue
-            saveToQueue(payload);
-            finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
-        });
+            .then(response => {
+                if (!response.ok) throw new Error("HTTP error");
+                finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
+            })
+            .catch(() => {
+                // Automatic fallback to local offline queue
+                saveToQueue(payload);
+                finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
+            });
     }
 
     function finishSubmissionFlow(formEl, submitBtn, msgText) {
@@ -937,15 +969,15 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(queue[idx])
             })
-            .then(r => {
-                if (!r.ok) throw new Error("Sync failure");
-                sendNext(idx + 1);
-            })
-            .catch(() => {
-                const remaining = queue.slice(idx);
-                localStorage.setItem("dp_pending_patrols", JSON.stringify(remaining));
-                isSyncing = false;
-            });
+                .then(r => {
+                    if (!r.ok) throw new Error("Sync failure");
+                    sendNext(idx + 1);
+                })
+                .catch(() => {
+                    const remaining = queue.slice(idx);
+                    localStorage.setItem("dp_pending_patrols", JSON.stringify(remaining));
+                    isSyncing = false;
+                });
         }
 
         sendNext(0);
