@@ -573,6 +573,7 @@
         container.innerHTML = "";
         capturedDefectPhotos = {};
 
+        // FORM A: fen001
         if (formCode === "fen001") {
             titleEl.innerText = `استمارة فحص السور - ${activeCheckpoint.name}`;
             container.innerHTML = `
@@ -620,7 +621,9 @@
                     <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
                 </div>
             `;
-        } else if (formCode === "adof001") {
+        }
+        // FORM B: adof001 (Office Inspection with 5 Corrective Action options)
+        else if (formCode === "adof001") {
             titleEl.innerText = `استمارة فحص المكاتب - ${activeCheckpoint.name}`;
             container.innerHTML = `
                 <div class="form-group">
@@ -635,6 +638,7 @@
                             <option value="Leave as is">البقاء كما هو عليه</option>
                             <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
                             <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                            <option value="Closed by officer">تم الإغلاق</option>
                         </select>
                         <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('office_status')">📷 التقاط صورة توثيقية للمكتب</button>
                         <img id="preview_office_status" class="photo-preview">
@@ -651,8 +655,8 @@
                         <label>الإجراء التصحيحي للتكييف:</label>
                         <select name="ac_action">
                             <option value="Leave as is">البقاء كما هو عليه</option>
-                            <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
                             <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                            <option value="Closed by officer">تم الإغلاق</option>
                         </select>
                         <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('ac_status')">📷 التقاط صورة للتكييف</button>
                         <img id="preview_ac_status" class="photo-preview">
@@ -671,6 +675,7 @@
                             <option value="Leave as is">البقاء كما هو عليه</option>
                             <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
                             <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                            <option value="Handed over to control room">تم التسليم إلي غرفة التحكم</option>
                         </select>
                         <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('belongings_status')">📷 التقاط صورة المقتنيات</button>
                         <img id="preview_belongings_status" class="photo-preview">
@@ -682,7 +687,9 @@
                     <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
                 </div>
             `;
-        } else if (formCode === "sp001") {
+        }
+        // FORM C: sp001 (Security Posts Inspection)
+        else if (formCode === "sp001") {
             titleEl.innerText = `استمارة نقطة الحراسة - ${activeCheckpoint.name}`;
             container.innerHTML = `
                 <div class="form-group">
@@ -873,11 +880,10 @@
 
         if (!isNetworkOnline) {
             saveToQueue(payload);
-            finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
+            finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
             return;
         }
 
-        // Uses text/plain to bypass CORS preflight OPTIONS blocking
         fetch(MS_POST_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -885,13 +891,12 @@
         })
             .then(response => {
                 if (!response.ok) throw new Error("HTTP error " + response.status);
-                // On direct online success, do NOT add to queue
-                finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
+                finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
             })
             .catch(err => {
                 console.warn("Direct submission failed, adding to offline queue:", err);
                 saveToQueue(payload);
-                finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل فحص (${activeCheckpoint.name}) بنجاح!`);
+                finishSubmissionFlow(formEl, submitBtn, `✔ تم تسجيل الفحص بنجاح!`);
             });
     }
 
@@ -914,7 +919,6 @@
         }, 5000);
     }
 
-    // SILENT AUTO-SYNC (Purges successfully sent items from queue)
     function silentBackgroundSync() {
         if (isSyncing || !isNetworkOnline) return;
         const queue = getQueue();
@@ -938,7 +942,6 @@
             })
                 .then(res => {
                     if (!res.ok) throw new Error("Sync status: " + res.status);
-                    // Remove item from storage immediately upon confirmation
                     const updatedQueue = getQueue();
                     updatedQueue.shift();
                     localStorage.setItem("dp_pending_patrols", JSON.stringify(updatedQueue));
