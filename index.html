@@ -251,8 +251,8 @@
             </div>
 
             <div class="form-group">
-                <label for="officer-input">اسم / كود ضابط الدورية:</label>
-                <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود..." autocomplete="on" required>
+                <label for="officer-input">اسم / كود ضابط الدورية الميدانية:</label>
+                <input type="text" id="officer-input" list="officers-datalist" placeholder="ابحث بالاسم أو الكود..." autocomplete="off" required>
                 <datalist id="officers-datalist"></datalist>
             </div>
 
@@ -293,16 +293,18 @@
             <div class="modal-box camera-viewport" style="text-align:center; background:none; box-shadow:none;">
                 <video id="photo-webcam" playsinline></video>
                 <canvas id="photo-canvas" style="display:none;"></canvas>
-                <div style="color:white; font-size:14px; margin-top:10px; font-weight:700;">التقط صورة حية لحالة العطل / الملاحظة</div>
+                <div style="color:white; font-size:14px; margin-top:10px; font-weight:700;">التقط صورة حية لتوثيق المخالفة / الملاحظة</div>
                 <button type="button" class="btn" style="background:var(--dp-green); max-width:220px; margin:10px auto 0;" onclick="takeDefectSnapshot()">📸 التقاط الصورة</button>
                 <button type="button" class="close-btn" style="max-width:220px; margin:8px auto 0;" onclick="closePhotoModal()">إلغاء</button>
             </div>
         </div>
 
         <script>
-
+            
+            // ========================================================
+            // MICROSOFT 365 POWER AUTOMATE FLOW ENDPOINTS
+            // ========================================================
             const MS_POST_URL = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/6378a04da38d4ceca40b396ec77642c4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PYXEHEyx3q-D81KB7tbaazfXYrgwlbdEx3nbM2Pk5eU";
-
             const MS_GET_URL  = "https://default7725528852984ea581aaa13e604c30.ac.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/b66bbdb67be54eeb819390b27497a5dc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=YyOV5aIndELK6T6d4Q3kM_O7zDCUQ2yFngrgMPrQlec";
 
             let CHECKPOINTS = {};
@@ -575,195 +577,219 @@
                 container.innerHTML = "";
                 capturedDefectPhotos = {};
 
-                // FORM A: fen001
+                // FORM A: fen001 (Fence Inspection)
                 if (formCode === "fen001") {
                     titleEl.innerText = `استمارة فحص السور - ${activeCheckpoint.name}`;
                     container.innerHTML = `
-                        <div class="form-group">
-                            <label>حالة السور:</label>
-                            <select name="fence_status" onchange="evaluatePhotoCondition('fence_status', this.value === 'Broken')">
-                                <option value="Intact">سليم</option>
-                                <option value="Broken">مكسور</option>
-                            </select>
-                            <div id="box_fence_status" class="conditional-box">
-                                <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية للكسر:</label>
-                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('fence_status')">📷 التقاط صورة العطل</button>
-                                <img id="preview_fence_status" class="photo-preview" alt="معاينة الصورة">
+                            <div class="form-group">
+                                <label>حالة السور:</label>
+                                <select name="fence_status" onchange="evaluatePhotoCondition('fence_status', this.value === 'Broken')">
+                                    <option value="Intact">سليم</option>
+                                    <option value="Broken">مكسور</option>
+                                </select>
+                                <div id="box_fence_status" class="conditional-box">
+                                    <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية للكسر:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('fence_status')">📷 التقاط صورة العطل</button>
+                                    <img id="preview_fence_status" class="photo-preview" alt="معاينة الصورة">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>حالة الإضاءة:</label>
-                            <select name="light_status" onchange="evaluatePhotoCondition('light_status', this.value === 'Defective')">
-                                <option value="Working">سليمة</option>
-                                <option value="Defective">غير سليمة</option>
-                            </select>
-                            <div id="box_light_status" class="conditional-box">
-                                <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لخلل الإضاءة:</label>
-                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('light_status')">📷 التقاط صورة الخلل</button>
-                                <img id="preview_light_status" class="photo-preview" alt="معاينة الصورة">
+                            <div class="form-group">
+                                <label>حالة الإضاءة:</label>
+                                <select name="light_status" onchange="evaluatePhotoCondition('light_status', this.value === 'Defective')">
+                                    <option value="Working">سليمة</option>
+                                    <option value="Defective">غير سليمة</option>
+                                </select>
+                                <div id="box_light_status" class="conditional-box">
+                                    <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لخلل الإضاءة:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('light_status')">📷 التقاط صورة الخلل</button>
+                                    <img id="preview_light_status" class="photo-preview" alt="معاينة الصورة">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>هل هناك نقطة اختراق في السور؟</label>
-                            <select name="breach_status" onchange="evaluatePhotoCondition('breach_status', this.value === 'Yes')">
-                                <option value="No">لا</option>
-                                <option value="Yes">نعم</option>
-                            </select>
-                            <div id="box_breach_status" class="conditional-box">
-                                <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لنقطة الاختراق:</label>
-                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('breach_status')">📷 التقاط صورة الاختراق</button>
-                                <img id="preview_breach_status" class="photo-preview" alt="معاينة الصورة">
+                            <div class="form-group">
+                                <label>هل هناك نقطة اختراق في السور؟</label>
+                                <select name="breach_status" onchange="evaluatePhotoCondition('breach_status', this.value === 'Yes')">
+                                    <option value="No">لا</option>
+                                    <option value="Yes">نعم</option>
+                                </select>
+                                <div id="box_breach_status" class="conditional-box">
+                                    <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لنقطة الاختراق:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('breach_status')">📷 التقاط صورة الاختراق</button>
+                                    <img id="preview_breach_status" class="photo-preview" alt="معاينة الصورة">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>ملاحظات إضافية:</label>
-                            <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
-                        </div>
-                    `;
+                            <div class="form-group">
+                                <label>ملاحظات إضافية:</label>
+                                <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
+                            </div>
+                        `;
                 }
-                // FORM B: adof001 (Office Inspection with ALL 5 Corrective Action options)
+                // FORM B: adof001 (Office Inspection - Preserving exact individual corrective actions)
                 else if (formCode === "adof001") {
                     titleEl.innerText = `استمارة فحص المكاتب - ${activeCheckpoint.name}`;
                     container.innerHTML = `
-                        <div class="form-group">
-                            <label>حالة المكتب:</label>
-                            <select name="office_status" onchange="evaluateOfficeCondition('office_status', this.value === 'Open')">
-                                <option value="Closed">مغلق</option>
-                                <option value="Open">مفتوح</option>
-                            </select>
-                            <div id="box_office_status" class="conditional-box">
-                                <label>الإجراء التصحيحي لحالة المكتب:</label>
-                                <select name="office_action">
-                                    <option value="Leave as is">البقاء كما هو عليه</option>
-                                    <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
-                                    <option value="Notify office owner">إبلاغ صاحب المكتب</option>
-                                    <option value="Closed by officer">تم الإغلاق</option>
+                            <div class="form-group">
+                                <label>حالة المكتب:</label>
+                                <select name="office_status" onchange="evaluatePhotoCondition('office_status', this.value === 'Open')">
+                                    <option value="Closed">مغلق</option>
+                                    <option value="Open">مفتوح</option>
                                 </select>
-                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('office_status')">📷 التقاط صورة توثيقية للمكتب</button>
-                                <img id="preview_office_status" class="photo-preview" alt="معاينة الصورة">
+                                <div id="box_office_status" class="conditional-box">
+                                    <label>الإجراء التصحيحي لحالة المكتب:</label>
+                                    <select name="office_action">
+                                        <option value="Leave as is">البقاء كما هو عليه</option>
+                                        <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
+                                        <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                                        <option value="Closed by officer">تم الإغلاق</option>
+                                    </select>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('office_status')">📷 التقاط صورة توثيقية للمكتب</button>
+                                    <img id="preview_office_status" class="photo-preview" alt="معاينة الصورة">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>حالة التكييف:</label>
-                            <select name="ac_status" onchange="evaluateOfficeCondition('ac_status', this.value === 'Running')">
-                                <option value="Closed">مغلق</option>
-                                <option value="Running">مفتوح</option>
-                            </select>
-                            <div id="box_ac_status" class="conditional-box">
-                                <label>الإجراء التصحيحي للتكييف:</label>
-                                <select name="ac_action">
-                                    <option value="Leave as is">البقاء كما هو عليه</option>
-                                    <option value="Notify office owner">إبلاغ صاحب المكتب</option>
-                                    <option value="Closed by officer">تم الإغلاق</option>
+                            <div class="form-group">
+                                <label>حالة التكييف:</label>
+                                <select name="ac_status" onchange="evaluatePhotoCondition('ac_status', this.value === 'Running')">
+                                    <option value="Closed">مغلق</option>
+                                    <option value="Running">مفتوح</option>
                                 </select>
-                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('ac_status')">📷 التقاط صورة للتكييف</button>
-                                <img id="preview_ac_status" class="photo-preview" alt="معاينة الصورة">
+                                <div id="box_ac_status" class="conditional-box">
+                                    <label>الإجراء التصحيحي للتكييف:</label>
+                                    <select name="ac_action">
+                                        <option value="Leave as is">البقاء كما هو عليه</option>
+                                        <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                                        <option value="Closed by officer">تم الإغلاق</option>
+                                    </select>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('ac_status')">📷 التقاط صورة للتكييف</button>
+                                    <img id="preview_ac_status" class="photo-preview" alt="معاينة الصورة">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>هل هناك مقتنيات معرضة للسرقة؟</label>
-                            <select name="belongings_status" onchange="evaluateOfficeCondition('belongings_status', this.value === 'Yes')">
-                                <option value="No">لا</option>
-                                <option value="Yes">نعم</option>
-                            </select>
-                            <div id="box_belongings_status" class="conditional-box">
-                                <label>الإجراء التصحيحي للمقتنيات:</label>
-                                <select name="belongings_action">
-                                    <option value="Leave as is">البقاء كما هو عليه</option>
-                                    <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
-                                    <option value="Notify office owner">إبلاغ صاحب المكتب</option>
-                                    <option value="Handed over to control room">تم التسليم إلي غرفة التحكم</option>
+                            <div class="form-group">
+                                <label>هل هناك مقتنيات معرضة للسرقة؟</label>
+                                <select name="belongings_status" onchange="evaluatePhotoCondition('belongings_status', this.value === 'Yes')">
+                                    <option value="No">لا</option>
+                                    <option value="Yes">نعم</option>
                                 </select>
-                                <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('belongings_status')">📷 التقاط صورة المقتنيات</button>
-                                <img id="preview_belongings_status" class="photo-preview" alt="معاينة الصورة">
+                                <div id="box_belongings_status" class="conditional-box">
+                                    <label>الإجراء التصحيحي للمقتنيات:</label>
+                                    <select name="belongings_action">
+                                        <option value="Leave as is">البقاء كما هو عليه</option>
+                                        <option value="Monitor via cameras">متابعة من خلال الكاميرات</option>
+                                        <option value="Notify office owner">إبلاغ صاحب المكتب</option>
+                                        <option value="Handed over to control room">تم التسليم إلي غرفة التحكم</option>
+                                    </select>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('belongings_status')">📷 التقاط صورة المقتنيات</button>
+                                    <img id="preview_belongings_status" class="photo-preview" alt="معاينة الصورة">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>ملاحظات إضافية:</label>
-                            <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
-                        </div>
-                    `;
+                            <div class="form-group">
+                                <label>ملاحظات إضافية:</label>
+                                <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
+                            </div>
+                        `;
                 }
-                // FORM C: sp001 (Security Posts Inspection)
+                // FORM C: sp001 (Security Posts Inspection - With Photos for all negative conditions)
                 else if (formCode === "sp001") {
                     titleEl.innerText = `استمارة نقطة الحراسة - ${activeCheckpoint.name}`;
                     container.innerHTML = `
-                        <div class="form-group">
-                            <label>اسم ضابط الدورية:</label>
-                            <input type="text" value="${document.getElementById('officer-input').value.trim()}" readonly style="background:#f8fafc; font-weight:700;">
-                        </div>
+                            <div class="form-group">
+                                <label>فرد الأمن المتواجد بالنقطة:</label>
+                                <input type="text" name="guard_at_post" list="officers-datalist" placeholder="ابحث بالاسم أو الكود (مثال: 30061)..." autocomplete="off" required>
+                            </div>
 
-                        <div class="form-group">
-                            <label>حالة النطاق الأمني:</label>
-                            <select name="perimeter_clean">
-                                <option value="Clean">نظيف</option>
-                                <option value="Dirty">غير نظيف</option>
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>حالة النطاق الأمني:</label>
+                                <select name="perimeter_clean" onchange="evaluatePhotoCondition('perimeter_photo', this.value === 'Dirty')">
+                                    <option value="Clean">نظيف</option>
+                                    <option value="Dirty">غير نظيف</option>
+                                </select>
+                                <div id="box_perimeter_photo" class="conditional-box">
+                                    <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية للنطاق غير النظيف:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('perimeter_photo')">📷 التقاط صورة النطاق</button>
+                                    <img id="preview_perimeter_photo" class="photo-preview" alt="معاينة الصورة">
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>حالة فرد الأمن:</label>
-                            <select name="personnel_present">
-                                <option value="Present">متواجد</option>
-                                <option value="Absent">غير متواجد</option>
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>حالة فرد الأمن:</label>
+                                <select name="personnel_present" onchange="evaluatePhotoCondition('personnel_photo', this.value === 'Absent')">
+                                    <option value="Present">متواجد</option>
+                                    <option value="Absent">غير متواجد</option>
+                                </select>
+                                <div id="box_personnel_photo" class="conditional-box">
+                                    <label style="color:var(--danger);">⚠️ توثيق عدم تواجد فرد الأمن بالنقطة:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('personnel_photo')">📷 التقاط صورة خلو النقطة</button>
+                                    <img id="preview_personnel_photo" class="photo-preview" alt="معاينة الصورة">
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>حالة أدوات السلامة:</label>
-                            <select name="safety_equip">
-                                <option value="Intact">سليمة</option>
-                                <option value="Damaged">غير سليمة</option>
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>حالة أدوات السلامة:</label>
+                                <select name="safety_equip" onchange="evaluatePhotoCondition('equip_photo', this.value === 'Damaged')">
+                                    <option value="Intact">سليمة</option>
+                                    <option value="Damaged">غير سليمة</option>
+                                </select>
+                                <div id="box_equip_photo" class="conditional-box">
+                                    <label style="color:var(--dp-warning);">⚠️ مطلوب صورة توثيقية لتلف أدوات السلامة:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('equip_photo')">📷 التقاط صورة الأدوات</button>
+                                    <img id="preview_equip_photo" class="photo-preview" alt="معاينة الصورة">
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>هل فرد الأمن نائم؟</label>
-                            <select name="is_sleeping">
-                                <option value="No">لا</option>
-                                <option value="Yes">نعم</option>
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>هل فرد الأمن نائم؟</label>
+                                <select name="is_sleeping" onchange="evaluatePhotoCondition('sleeping_photo', this.value === 'Yes')">
+                                    <option value="No">لا</option>
+                                    <option value="Yes">نعم</option>
+                                </select>
+                                <div id="box_sleeping_photo" class="conditional-box">
+                                    <label style="color:var(--danger);">⚠️ توثيق مخالفة نوم أثناء الخدمة:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('sleeping_photo')">📷 التقاط صورة المخالفة</button>
+                                    <img id="preview_sleeping_photo" class="photo-preview" alt="معاينة الصورة">
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>هل فرد الأمن يرتدي الزي؟</label>
-                            <select name="wearing_uniform">
-                                <option value="Yes">نعم</option>
-                                <option value="No">لا</option>
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>هل فرد الأمن يرتدي الزي؟</label>
+                                <select name="wearing_uniform" onchange="evaluatePhotoCondition('uniform_photo', this.value === 'No')">
+                                    <option value="Yes">نعم</option>
+                                    <option value="No">لا</option>
+                                </select>
+                                <div id="box_uniform_photo" class="conditional-box">
+                                    <label style="color:var(--danger);">⚠️ توثيق مخالفة عدم ارتداء الزي:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('uniform_photo')">📷 التقاط صورة المخالفة</button>
+                                    <img id="preview_uniform_photo" class="photo-preview" alt="معاينة الصورة">
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>هل الزي مهندم؟</label>
-                            <select name="uniform_neat">
-                                <option value="Yes">نعم</option>
-                                <option value="No">لا</option>
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>هل الزي مهندم؟</label>
+                                <select name="uniform_neat" onchange="evaluatePhotoCondition('neat_photo', this.value === 'No')">
+                                    <option value="Yes">نعم</option>
+                                    <option value="No">لا</option>
+                                </select>
+                                <div id="box_neat_photo" class="conditional-box">
+                                    <label style="color:var(--danger);">⚠️ توثيق مظهر الزي غير المهندم:</label>
+                                    <button type="button" class="btn btn-capture-sub" onclick="openPhotoCaptureModal('neat_photo')">📷 التقاط صورة الزي</button>
+                                    <img id="preview_neat_photo" class="photo-preview" alt="معاينة الصورة">
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>ملاحظات:</label>
-                            <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
-                        </div>
-                    `;
+                            <div class="form-group">
+                                <label>ملاحظات:</label>
+                                <textarea name="notes" rows="2" placeholder="اكتب الملاحظات إن وجدت..."></textarea>
+                            </div>
+                        `;
                 }
 
                 document.getElementById("form-modal").style.display = "flex";
             }
 
             function evaluatePhotoCondition(fieldId, isNegative) {
-                const box = document.getElementById(`box_${fieldId}`);
-                if (box) box.style.display = isNegative ? "block" : "none";
-                if (!isNegative) delete capturedDefectPhotos[fieldId];
-            }
-
-            function evaluateOfficeCondition(fieldId, isNegative) {
                 const box = document.getElementById(`box_${fieldId}`);
                 if (box) box.style.display = isNegative ? "block" : "none";
                 if (!isNegative) delete capturedDefectPhotos[fieldId];
@@ -819,6 +845,9 @@
                 closePhotoModal();
             }
 
+            // ----------------------------------------------------
+            // PREFLIGHT-FREE SUBMISSION & SILENT AUTO-SYNC
+            // ----------------------------------------------------
             function processInspectionSubmit(event) {
                 event.preventDefault();
                 const submitBtn = document.getElementById("submit-inspection-btn");
@@ -848,6 +877,7 @@
                 // Case-insensitive, robust defect detection across all 3 forms
                 const currentForm = (activeCheckpoint.formCode || "fen001").toString().toLowerCase().trim();
                 let isDefect = false;
+
                 if (currentForm === "fen001") {
                     const fenceVal = String(answersObj["fence_status"] || "").trim().toLowerCase();
                     const lightVal = String(answersObj["light_status"] || "").trim().toLowerCase();
@@ -857,6 +887,7 @@
                     const officeVal = String(answersObj["office_status"] || "").trim().toLowerCase();
                     const acVal = String(answersObj["ac_status"] || "").trim().toLowerCase();
                     const belongVal = String(answersObj["belongings_status"] || "").trim().toLowerCase();
+                    // Office Open, AC Running, or Belongings Exposed = Defect
                     isDefect = (officeVal === "open" || acVal === "running" || belongVal === "yes");
                 } else if (currentForm === "sp001") {
                     const perimVal = String(answersObj["perimeter_clean"] || "").trim().toLowerCase();
@@ -865,6 +896,7 @@
                     const sleepVal = String(answersObj["is_sleeping"] || "").trim().toLowerCase();
                     const unifVal = String(answersObj["wearing_uniform"] || "").trim().toLowerCase();
                     const neatVal = String(answersObj["uniform_neat"] || "").trim().toLowerCase();
+                    // Flag defect on ANY negative personnel violation
                     isDefect = (perimVal === "dirty" || personVal === "absent" || equipVal === "damaged" || sleepVal === "yes" || unifVal === "no" || neatVal === "no");
                 }
 
