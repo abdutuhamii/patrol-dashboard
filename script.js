@@ -389,7 +389,7 @@ function displayInspectionForm() {
             </div>
         `;
     }
-    // FORM C: sp001 (Security Posts Inspection - Logical Dependent Flow)
+    // FORM C: sp001 (Security Posts Inspection - With Strict Logical Dependency)
     else if (formCode === "sp001") {
         titleEl.innerText = `استمارة نقطة الحراسة - ${activeCheckpoint.name}`;
         container.innerHTML = `
@@ -398,7 +398,7 @@ function displayInspectionForm() {
                 <input type="text" name="guard_at_post" list="officers-datalist" placeholder="ابحث بالاسم أو الكود (مثال: 30061)..." autocomplete="off" required>
             </div>
 
-            <!-- 1. Perimeter Cleanliness (Always Checked) -->
+            <!-- 1. Perimeter Cleanliness -->
             <div class="form-group">
                 <label>حالة النطاق الأمني:</label>
                 <select name="perimeter_clean" onchange="evaluatePhotoCondition('perimeter_photo', this.value === 'Dirty')">
@@ -412,7 +412,7 @@ function displayInspectionForm() {
                 </div>
             </div>
 
-            <!-- 2. Safety Equipment (Always Checked) -->
+            <!-- 2. Safety Equipment -->
             <div class="form-group">
                 <label>حالة أدوات السلامة:</label>
                 <select name="safety_equip" onchange="evaluatePhotoCondition('equip_photo', this.value === 'Damaged')">
@@ -457,7 +457,7 @@ function displayInspectionForm() {
 
                 <div class="form-group">
                     <label>هل فرد الأمن يرتدي الزي؟</label>
-                    <select name="wearing_uniform" onchange="evaluatePhotoCondition('uniform_photo', this.value === 'No')">
+                    <select name="wearing_uniform" id="sp_wearing_uniform" onchange="handleWearingUniformChange(this.value)">
                         <option value="Yes">نعم</option>
                         <option value="No">لا</option>
                     </select>
@@ -468,7 +468,8 @@ function displayInspectionForm() {
                     </div>
                 </div>
 
-                <div class="form-group">
+                <!-- 5. Dependent Neatness Field (Only shown if Wearing Uniform == Yes) -->
+                <div class="form-group" id="box_uniform_neat_container">
                     <label>هل الزي مهندم؟</label>
                     <select name="uniform_neat" onchange="evaluatePhotoCondition('neat_photo', this.value === 'No')">
                         <option value="Yes">نعم</option>
@@ -499,7 +500,7 @@ function handlePersonnelPresenceChange(status) {
     const photoLabel = document.getElementById("lbl_personnel_photo");
 
     if (status === "Absent") {
-        // Guard is absent: hide sleeping, wearing uniform, and neatness fields
+        // Guard is absent: hide sleeping, uniform, and neatness fields completely
         if (behaviorBox) behaviorBox.style.display = "none";
 
         // Remove any irrelevant violation photos captured previously
@@ -517,7 +518,7 @@ function handlePersonnelPresenceChange(status) {
             photoLabel.innerText = "⚠️ مطلوب صورة توثيقية لإثبات غياب فرد الأمن / خلو النقطة:";
         }
     } else {
-        // Guard is present: reveal sleeping, uniform, and neatness fields
+        // Guard is present: reveal behavior fields
         if (behaviorBox) behaviorBox.style.display = "block";
 
         // Adapt the presence photo prompt to "Proof of Presence"
@@ -529,6 +530,28 @@ function handlePersonnelPresenceChange(status) {
             photoLabel.style.color = "var(--dp-navy)";
             photoLabel.innerText = "📷 مطلوب صورة توثيقية لإثبات تواجد فرد الأمن بالنقطة:";
         }
+
+        // Re-evaluate neatness container based on current uniform selection
+        const uniformSelect = document.getElementById("sp_wearing_uniform");
+        if (uniformSelect) {
+            handleWearingUniformChange(uniformSelect.value);
+        }
+    }
+}
+
+// Logic: Show/Hide neatness field based on whether guard is wearing the uniform
+function handleWearingUniformChange(value) {
+    // 1. Toggle violation photo for not wearing uniform
+    evaluatePhotoCondition('uniform_photo', value === 'No');
+
+    const neatContainer = document.getElementById("box_uniform_neat_container");
+    if (value === "No") {
+        // Not wearing uniform: hiding neatness check (illogical to assess)
+        if (neatContainer) neatContainer.style.display = "none";
+        delete capturedDefectPhotos['neat_photo'];
+    } else {
+        // Wearing uniform: show neatness check
+        if (neatContainer) neatContainer.style.display = "block";
     }
 }
 
@@ -636,18 +659,25 @@ function processInspectionSubmit(event) {
         const personVal = String(answersObj["personnel_present"] || "").trim().toLowerCase();
         const equipVal = String(answersObj["safety_equip"] || "").trim().toLowerCase();
 
-        // Logical presence evaluation
+        // Logical presence & uniform evaluation
         if (personVal === "absent") {
-            // Guard absence is an automatic violation; sleeping and uniform are marked N/A
+            // Guard absence is an automatic defect; sleeping and uniform questions are marked N/A
             isDefect = true;
             answersObj["is_sleeping"] = "N/A";
             answersObj["wearing_uniform"] = "N/A";
             answersObj["uniform_neat"] = "N/A";
         } else {
-            // Guard is present: evaluate sleeping, uniform, and neatness
+            // Guard is present: evaluate sleeping and uniform status
             const sleepVal = String(answersObj["is_sleeping"] || "").trim().toLowerCase();
             const unifVal = String(answersObj["wearing_uniform"] || "").trim().toLowerCase();
+
+            if (unifVal === "no") {
+                // If not wearing uniform: neatness check is not applicable
+                answersObj["uniform_neat"] = "N/A";
+            }
             const neatVal = String(answersObj["uniform_neat"] || "").trim().toLowerCase();
+
+            // Defect if any violation exists
             isDefect = (perimVal === "dirty" || equipVal === "damaged" || sleepVal === "yes" || unifVal === "no" || neatVal === "no");
         }
     }
