@@ -389,7 +389,7 @@ function displayInspectionForm() {
             </div>
         `;
     }
-    // FORM C: sp001 (Security Posts Inspection - With Strict Logical Dependency)
+    // FORM C: sp001 (Security Posts Inspection)
     else if (formCode === "sp001") {
         titleEl.innerText = `استمارة نقطة الحراسة - ${activeCheckpoint.name}`;
         container.innerHTML = `
@@ -440,7 +440,7 @@ function displayInspectionForm() {
                 </div>
             </div>
 
-            <!-- 4. Dependent Guard Behavior Fields (Only shown if Guard is Present) -->
+            <!-- 4. Dependent Guard Behavior Fields -->
             <div id="guard_behavior_fields">
                 <div class="form-group">
                     <label>هل فرد الأمن نائم؟</label>
@@ -468,7 +468,7 @@ function displayInspectionForm() {
                     </div>
                 </div>
 
-                <!-- 5. Dependent Neatness Field (Only shown if Wearing Uniform == Yes) -->
+                <!-- 5. Dependent Neatness Field -->
                 <div class="form-group" id="box_uniform_neat_container">
                     <label>هل الزي مهندم؟</label>
                     <select name="uniform_neat" onchange="evaluatePhotoCondition('neat_photo', this.value === 'No')">
@@ -493,22 +493,18 @@ function displayInspectionForm() {
     document.getElementById("form-modal").style.display = "flex";
 }
 
-// Logic: Show/Hide dependent questions based on presence, and adjust proof photo prompt
 function handlePersonnelPresenceChange(status) {
     const behaviorBox = document.getElementById("guard_behavior_fields");
     const photoBox = document.getElementById("box_personnel_photo");
     const photoLabel = document.getElementById("lbl_personnel_photo");
 
     if (status === "Absent") {
-        // Guard is absent: hide sleeping, uniform, and neatness fields completely
         if (behaviorBox) behaviorBox.style.display = "none";
 
-        // Remove any irrelevant violation photos captured previously
         delete capturedDefectPhotos['sleeping_photo'];
         delete capturedDefectPhotos['uniform_photo'];
         delete capturedDefectPhotos['neat_photo'];
 
-        // Adapt the presence photo prompt to "Proof of Absence"
         if (photoBox) {
             photoBox.style.background = "#fff1f2";
             photoBox.style.borderColor = "var(--danger)";
@@ -518,10 +514,8 @@ function handlePersonnelPresenceChange(status) {
             photoLabel.innerText = "⚠️ مطلوب صورة توثيقية لإثبات غياب فرد الأمن / خلو النقطة:";
         }
     } else {
-        // Guard is present: reveal behavior fields
         if (behaviorBox) behaviorBox.style.display = "block";
 
-        // Adapt the presence photo prompt to "Proof of Presence"
         if (photoBox) {
             photoBox.style.background = "#f0fdf4";
             photoBox.style.borderColor = "var(--dp-green)";
@@ -531,7 +525,6 @@ function handlePersonnelPresenceChange(status) {
             photoLabel.innerText = "📷 مطلوب صورة توثيقية لإثبات تواجد فرد الأمن بالنقطة:";
         }
 
-        // Re-evaluate neatness container based on current uniform selection
         const uniformSelect = document.getElementById("sp_wearing_uniform");
         if (uniformSelect) {
             handleWearingUniformChange(uniformSelect.value);
@@ -539,18 +532,14 @@ function handlePersonnelPresenceChange(status) {
     }
 }
 
-// Logic: Show/Hide neatness field based on whether guard is wearing the uniform
 function handleWearingUniformChange(value) {
-    // 1. Toggle violation photo for not wearing uniform
     evaluatePhotoCondition('uniform_photo', value === 'No');
 
     const neatContainer = document.getElementById("box_uniform_neat_container");
     if (value === "No") {
-        // Not wearing uniform: hiding neatness check (illogical to assess)
         if (neatContainer) neatContainer.style.display = "none";
         delete capturedDefectPhotos['neat_photo'];
     } else {
-        // Wearing uniform: show neatness check
         if (neatContainer) neatContainer.style.display = "block";
     }
 }
@@ -659,31 +648,31 @@ function processInspectionSubmit(event) {
         const personVal = String(answersObj["personnel_present"] || "").trim().toLowerCase();
         const equipVal = String(answersObj["safety_equip"] || "").trim().toLowerCase();
 
-        // Logical presence & uniform evaluation
         if (personVal === "absent") {
-            // Guard absence is an automatic defect; sleeping and uniform questions are marked N/A
             isDefect = true;
             answersObj["is_sleeping"] = "N/A";
             answersObj["wearing_uniform"] = "N/A";
             answersObj["uniform_neat"] = "N/A";
         } else {
-            // Guard is present: evaluate sleeping and uniform status
             const sleepVal = String(answersObj["is_sleeping"] || "").trim().toLowerCase();
             const unifVal = String(answersObj["wearing_uniform"] || "").trim().toLowerCase();
 
             if (unifVal === "no") {
-                // If not wearing uniform: neatness check is not applicable
                 answersObj["uniform_neat"] = "N/A";
             }
             const neatVal = String(answersObj["uniform_neat"] || "").trim().toLowerCase();
 
-            // Defect if any violation exists
             isDefect = (perimVal === "dirty" || equipVal === "damaged" || sleepVal === "yes" || unifVal === "no" || neatVal === "no");
         }
     }
 
     const allowedTolerance = Math.max(activeCheckpoint.tolerance || 15, telemetryGPS.accuracy || 0);
     const isSuspicious = distanceMeters > allowedTolerance;
+
+    // Construct Direct Google Maps Navigation URL
+    const mapsLink = (telemetryGPS.lat && telemetryGPS.lat !== 0)
+        ? `https://www.google.com/maps?q=${telemetryGPS.lat},${telemetryGPS.lon}`
+        : "No Location";
 
     const payload = {
         officerName: parsedOfficer.name,
@@ -699,6 +688,7 @@ function processInspectionSubmit(event) {
         latitude: telemetryGPS.lat,
         longitude: telemetryGPS.lon,
         distance: distanceMeters,
+        mapsUrl: mapsLink, // Direct Google Maps Link
         inspectionStatus: isDefect ? "FLAGGED_DEFECT" : "NORMAL",
         securityStatus: isSuspicious ? "SUSPICIOUS / MANIPULATED" : "VERIFIED",
         securityFlags: isSuspicious ? `OUT_OF_BOUNDS (${distanceMeters}m > ${allowedTolerance}m)` : "CLEAN"
